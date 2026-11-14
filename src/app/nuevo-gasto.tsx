@@ -5,25 +5,36 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { Button } from '../components/common/Button';
 import { ModalScreen } from '../components/common/ModalScreen';
 import { MontoInput } from '../components/forms/MontoInput';
-import { OpcionesSelector } from '../components/forms/OpcionesSelector';
+import { OpcionesSelector, type Opcion } from '../components/forms/OpcionesSelector';
 import { OPCIONES_FORMA } from '../components/forms/opcionesForma';
 import { TextField } from '../components/forms/TextField';
-import type { Movimiento, Sector } from '../db/schema';
+import { getCuentas } from '../db/queries/cuentas';
 import { getMovimiento } from '../db/queries/movimientos';
+import { getSaldoSectorPorForma } from '../db/queries/saldosSectores';
 import { getSectores } from '../db/queries/sectores';
+import type { Movimiento, Sector } from '../db/schema';
 import { useEliminarMovimiento } from '../hooks/useEliminarMovimiento';
 import { useCuentasStore } from '../store/useCuentasStore';
 import { colors, fontSizes, fonts, spacing } from '../theme';
 import type { FormaDinero, Moneda } from '../types';
-import { confirmar } from '../utils/dialogos';
 import { mensajeError } from '../utils/errors';
 import { formatFechaHora } from '../utils/fechas';
 import { limitesTexto, validarGasto } from '../utils/gastoValidation';
-import { deCentavos } from '../utils/montos';
+import { aCentavos, deCentavos } from '../utils/montos';
+import { bloqueosGasto, disponibleParaGastar } from '../utils/saldoForma';
+
+const FORMAS: FormaDinero[] = ['efectivo', 'transferencia', 'usd'];
+
+/** Lo que hay en la cuenta y en el sector en cada forma de dinero, en centavos. */
+interface Disponibles {
+  cuenta: Record<FormaDinero, number>;
+  sector: Record<FormaDinero, number>;
+}
 
 /**
  * Ventana de gastos de un sector (Gastos fijos, Gustos o uno propio) o de salidas de Ahorro
- * (en ese caso el motivo es obligatorio). Tiene dos modos:
+ * (en ese caso el motivo es obligatorio). Solo se puede gastar el dinero que hay en cada forma de dinero
+ * (efectivo, transferencia o USD): si una se agotó, no se puede elegir. Tiene dos modos:
  * - Nuevo: se abre con `sectorId`.
  * - Editar: se abre con `movimientoId`; permite cambiar los datos o eliminar el gasto.
  *   La fecha, la hora y el sector se mantienen.
@@ -40,6 +51,7 @@ export default function NuevoGastoScreen() {
 
   const [sector, setSector] = useState<Sector | null>(null);
   const [movimiento, setMovimiento] = useState<Movimiento | null>(null);
+  const [disponibles, setDisponibles] = useState<Disponibles | null>(null);
   const [noExiste, setNoExiste] = useState(false);
   const [errorCarga, setErrorCarga] = useState<string | null>(null);
 
@@ -51,32 +63,46 @@ export default function NuevoGastoScreen() {
   const [errorGuardar, setErrorGuardar] = useState<string | null>(null);
   const bloqueo = useRef(false); // evita guardar dos veces si se toca el botón rápido
 
-  // Se carga el sector (y, al editar, el gasto con sus datos para llenar el formulario).
+  // Se carga el sector (y, al editar, el gasto con sus datos para llenar el formulario) y lo que hay en cada forma.
   useEffect(() => {
     let activo = true;
     (async () => {
       try {
         const sectores = await getSectores(db);
+        const mov = movimientoId ? await getMovimiento(db, movimientoId) : null;
+        const encontrado = sectores.find(
+          (s) => s.id === (movimientoId ? mov?.sector_id : String(params.sectorId)),
+        );
+        if (!activo) return;
+        if (!encontrado || (movimientoId && (!mov || mov.tipo === 'ingreso'))) {
+          setNoExiste(true);
+          return;
+        }
+
+        const [cuentas, porForma] = await Promise.all([
+          getCuentas(db),
+          getSaldoSectorPorForma(db, encontrado.id),
+        ]);
         if (!activo) return;
 
-        if (movimientoId) {
-          const mov = await getMovimiento(db, movimientoId);
-          if (!activo) return;
-          const delSector = mov ? sectores.find((s) => s.id === mov.sector_id) : undefined;
-          if (!mov || mov.tipo === 'ingreso' || !delSector) {
-            setNoExiste(true);
-            return;
-          }
+        const cuenta: Record<FormaDinero, number> = { efectivo: 0, transferencia: 0, usd: 0 };
+        for (const c of cuentas) cuenta[c.tipo] = aCentavos(c.saldo);
+        setDisponibles({
+          cuenta,
+          sector: {
+            efectivo: aCentavos(porForma.efectivo),
+            transferencia: aCentavos(porForma.transferencia),
+            usd: aCentavos(porForma.usd),
+          },
+        });
+
+        if (mov) {
           setMovimiento(mov);
-          setSector(delSector);
           setMontoTexto(String(mov.monto));
           setForma(mov.forma);
-          setTexto((delSector.tipo === 'ahorro' ? mov.motivo_ahorro : mov.concepto) ?? '');
-        } else {
-          const encontrado = sectores.find((s) => s.id === String(params.sectorId));
-          if (!encontrado) setNoExiste(true);
-          setSector(encontrado ?? null);
+          setTexto((encontrado.tipo === 'ahorro' ? mov.motivo_ahorro : mov.concepto) ?? '');
         }
+        setSector(encontrado);
       } catch (e) {
         if (activo) setErrorCarga(mensajeError(e));
       }
@@ -95,12 +121,53 @@ export default function NuevoGastoScreen() {
     [montoTexto, forma, texto, esAhorro],
   );
 
+  // Al editar, lo que el gasto ya había descontado vuelve a estar disponible (solo en su misma forma).
+  const disponiblePorForma = useMemo(() => {
+    const d: Record<FormaDinero, number> = { efectivo: 0, transferencia: 0, usd: 0 };
+    if (!disponibles) return d;
+    for (const f of FORMAS) {
+      d[f] = disponibleParaGastar({
+        cuentaCentavos: disponibles.cuenta[f],
+        sectorCentavos: disponibles.sector[f],
+        devueltoCentavos: movimiento && movimiento.forma === f ? aCentavos(movimiento.monto) : 0,
+      });
+    }
+    return d;
+  }, [disponibles, movimiento]);
+
+  // Una forma agotada no se puede elegir (salvo la que ya tiene el gasto que se está editando).
+  const opcionesForma: Opcion<FormaDinero>[] = OPCIONES_FORMA.map((o) => {
+    const agotada = disponiblePorForma[o.value] <= 0;
+    return {
+      ...o,
+      deshabilitada: agotada && o.value !== movimiento?.forma,
+      nota: agotada ? 'Agotado' : undefined,
+    };
+  });
+  const todoAgotado = disponibles !== null && FORMAS.every((f) => disponiblePorForma[f] <= 0);
+
+  // Motivos por los que lo escrito no alcanza (se muestran mientras se escribe).
+  const bloqueos = useMemo(() => {
+    if (!sector || !disponibles || !forma || resultado.montoCentavos === null) return [];
+    return bloqueosGasto({
+      montoCentavos: resultado.montoCentavos,
+      forma,
+      sectorNombre: sector.nombre,
+      cuentaCentavos: disponibles.cuenta[forma],
+      sectorCentavos: disponibles.sector[forma],
+      devueltoCentavos: movimiento && movimiento.forma === forma ? aCentavos(movimiento.monto) : 0,
+    });
+  }, [sector, disponibles, forma, resultado.montoCentavos, movimiento]);
+
+  const errorMonto =
+    (intentado ? resultado.errores.monto : undefined) ??
+    (bloqueos.length > 0 ? bloqueos.join('\n') : undefined);
+
   const { eliminar, eliminando, error: errorEliminar } = useEliminarMovimiento(
     movimientoId,
     {
       titulo: esAhorro ? '¿Eliminar este retiro?' : '¿Eliminar este gasto?',
-      mensaje:
-        'El dinero vuelve a tu saldo y al sector. No se puede deshacer desde la app.',
+      mensaje: 'El dinero vuelve a tu saldo y al sector. No se puede deshacer desde la app.',
     },
     () => router.back(),
   );
@@ -112,33 +179,22 @@ export default function NuevoGastoScreen() {
 
     const { valido, montoCentavos, texto: textoLimpio } = resultado;
     if (!valido || montoCentavos === null || forma === null) return;
+    if (bloqueos.length > 0) return; // el motivo ya se ve bajo el monto
 
     bloqueo.current = true;
     setGuardando(true);
     try {
       const datos = { monto: deCentavos(montoCentavos), forma, texto: textoLimpio };
-      const guardar = (confirmarExceso: boolean) =>
-        movimientoId
-          ? editarGasto(db, movimientoId, datos, { confirmarExceso })
-          : registrarGasto(db, { ...datos, sector_id: sector.id }, { confirmarExceso });
+      const guardado = movimientoId
+        ? await editarGasto(db, movimientoId, datos)
+        : await registrarGasto(db, { ...datos, sector_id: sector.id });
 
-      const primero = await guardar(false);
-      if (primero.estado === 'guardado') {
+      if (guardado.estado === 'guardado') {
         router.back();
         return;
       }
-
-      // El gasto supera lo disponible: se avisa y se deja decidir.
-      const seguir = await confirmar({
-        titulo: 'Ojo con este gasto',
-        mensaje: `${primero.avisos.join('\n\n')}\n\n¿Quieres guardarlo de todos modos?`,
-        textoConfirmar: 'Guardar de todos modos',
-        destructivo: true,
-      });
-      if (!seguir) return;
-
-      const segundo = await guardar(true);
-      if (segundo.estado === 'guardado') router.back();
+      // La base de datos también comprueba el saldo: si cambió mientras tanto, no se guarda.
+      setErrorGuardar(guardado.avisos.join('\n'));
     } catch (e) {
       setErrorGuardar(mensajeError(e));
     } finally {
@@ -173,17 +229,24 @@ export default function NuevoGastoScreen() {
         <Text style={styles.texto}>Cargando…</Text>
       ) : (
         <>
+          {todoAgotado ? (
+            <Text style={styles.aviso}>
+              Este sector no tiene dinero disponible en ninguna forma. Registra un ingreso y repártelo
+              aquí para poder gastar.
+            </Text>
+          ) : null}
+
           <MontoInput
             label={esAhorro ? 'Monto a retirar' : 'Monto del gasto'}
             value={montoTexto}
             onChangeText={setMontoTexto}
             moneda={moneda}
-            error={intentado ? resultado.errores.monto : undefined}
+            error={errorMonto}
           />
 
           <OpcionesSelector
             label="Forma de dinero"
-            opciones={OPCIONES_FORMA}
+            opciones={opcionesForma}
             valor={forma}
             onChange={setForma}
             columnas={3}
@@ -205,7 +268,13 @@ export default function NuevoGastoScreen() {
           {errorEliminar ? <Text style={styles.error}>{errorEliminar}</Text> : null}
 
           <View style={styles.actions}>
-            <Button title={textoBoton} icon="checkmark" onPress={guardar} loading={guardando} />
+            <Button
+              title={textoBoton}
+              icon="checkmark"
+              onPress={guardar}
+              loading={guardando}
+              disabled={todoAgotado && !editando}
+            />
             {editando ? (
               <Button
                 title={esAhorro ? 'Eliminar retiro' : 'Eliminar gasto'}
@@ -228,6 +297,11 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.textSecondary,
+  },
+  aviso: {
+    fontFamily: fonts.medium,
+    fontSize: fontSizes.sm,
+    color: colors.negative,
   },
   error: {
     fontFamily: fonts.regular,

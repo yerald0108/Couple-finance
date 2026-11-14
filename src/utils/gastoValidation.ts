@@ -1,8 +1,5 @@
 import type { FormaDinero, TipoMovimiento, TipoSector } from '../types';
-import { FORMA_LABEL } from './constants';
-import { monedaDeForma } from './etiquetas';
-import { formatMonto } from './formatters';
-import { deCentavos, parseMontoCentavos } from './montos';
+import { parseMontoCentavos } from './montos';
 
 export const CONCEPTO_MIN = 2;
 export const CONCEPTO_MAX = 40;
@@ -82,38 +79,4 @@ export function validarGasto(entrada: EntradaGasto): ResultadoValidacionGasto {
   }
 
   return { valido: Object.keys(errores).length === 0, errores, montoCentavos, texto };
-}
-
-export interface DatosAvisoSaldo {
-  montoCentavos: number;
-  forma: FormaDinero;
-  sectorNombre: string;
-  /** Lo disponible en el sector, en la moneda de la forma elegida (pesos o USD). */
-  disponibleSectorCentavos: number;
-  /** Saldo de la cuenta de esa forma de dinero. */
-  saldoCuentaCentavos: number;
-}
-
-/**
- * Avisos antes de guardar un gasto que supera lo que hay. Lista vacía = no hay problema.
- * Se avisa si supera lo disponible en el sector y/o el saldo de la forma de dinero elegida.
- */
-export function avisosSaldoGasto(d: DatosAvisoSaldo): string[] {
-  const moneda = monedaDeForma(d.forma);
-  const avisos: string[] = [];
-
-  if (d.montoCentavos > d.disponibleSectorCentavos) {
-    avisos.push(
-      `Este gasto supera lo disponible en ${d.sectorNombre}: ` +
-        `tienes ${formatMonto(deCentavos(d.disponibleSectorCentavos), moneda)}.`,
-    );
-  }
-  if (d.montoCentavos > d.saldoCuentaCentavos) {
-    avisos.push(
-      `No tienes suficiente en ${FORMA_LABEL[d.forma]}: ` +
-        `tu saldo es ${formatMonto(deCentavos(d.saldoCuentaCentavos), moneda)}.`,
-    );
-  }
-
-  return avisos;
 }

@@ -11,7 +11,6 @@ import { useEliminarMovimiento } from '../hooks/useEliminarMovimiento';
 import { useCuentasStore } from '../store/useCuentasStore';
 import { useSectoresStore } from '../store/useSectoresStore';
 import { colors, fontSizes, fonts, spacing } from '../theme';
-import { confirmar } from '../utils/dialogos';
 import { mensajeError } from '../utils/errors';
 import { formatFechaHora } from '../utils/fechas';
 
@@ -78,27 +77,13 @@ export default function EditarIngresoScreen() {
 
   async function guardar(datos: DatosIngreso): Promise<boolean> {
     if (!id) return false;
-    const primero = await editarIngreso(db, id, datos);
-    if (primero.estado === 'guardado') {
+    const resultado = await editarIngreso(db, id, datos);
+    if (resultado.estado === 'guardado') {
       router.back();
       return true;
     }
-
-    // El cambio dejaría algún saldo en negativo: se avisa y se deja decidir.
-    const seguir = await confirmar({
-      titulo: 'Ojo con este cambio',
-      mensaje: `${primero.avisos.join('\n\n')}\n\n¿Quieres guardarlo de todos modos?`,
-      textoConfirmar: 'Guardar de todos modos',
-      destructivo: true,
-    });
-    if (!seguir) return false;
-
-    const segundo = await editarIngreso(db, id, datos, { confirmarExceso: true });
-    if (segundo.estado === 'guardado') {
-      router.back();
-      return true;
-    }
-    return false;
+    // El cambio dejaría el dinero de alguna forma en negativo: no se guarda y el formulario muestra el motivo.
+    throw new Error(resultado.avisos.join('\n'));
   }
 
   return (

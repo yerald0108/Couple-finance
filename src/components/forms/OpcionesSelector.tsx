@@ -9,6 +9,10 @@ export interface Opcion<T extends string> {
   icon?: IconName;
   /** Color de la opción cuando está elegida (por defecto, el color principal). */
   color?: string;
+  /** true = no se puede elegir (por ejemplo, una forma de dinero que se agotó). */
+  deshabilitada?: boolean;
+  /** Texto pequeño bajo el nombre ("Agotado"). */
+  nota?: string;
 }
 
 interface OpcionesSelectorProps<T extends string> {
@@ -37,18 +41,21 @@ export function OpcionesSelector<T extends string>({
         {opciones.map((opcion) => {
           const elegida = opcion.value === valor;
           const color = opcion.color ?? colors.primary;
+          const deshabilitada = opcion.deshabilitada === true;
           return (
             <Pressable
               key={opcion.value}
               onPress={() => onChange(opcion.value)}
+              disabled={deshabilitada}
               accessibilityRole="radio"
-              accessibilityState={{ selected: elegida }}
-              accessibilityLabel={opcion.label}
+              accessibilityState={{ selected: elegida, disabled: deshabilitada }}
+              accessibilityLabel={opcion.nota ? `${opcion.label}, ${opcion.nota}` : opcion.label}
               style={({ pressed }) => [
                 styles.opcion,
                 { flexBasis: columnas === 3 ? '30%' : '47%' },
                 elegida && { borderColor: color, backgroundColor: `${color}1A` },
                 pressed && styles.pressed,
+                deshabilitada && styles.deshabilitada,
               ]}
             >
               {opcion.icon ? (
@@ -65,6 +72,7 @@ export function OpcionesSelector<T extends string>({
               >
                 {opcion.label}
               </Text>
+              {opcion.nota ? <Text style={styles.nota}>{opcion.nota}</Text> : null}
             </Pressable>
           );
         })}
@@ -103,6 +111,15 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.85,
+  },
+  deshabilitada: {
+    opacity: 0.45,
+    backgroundColor: colors.background,
+  },
+  nota: {
+    fontFamily: fonts.medium,
+    fontSize: fontSizes.xs,
+    color: colors.negative,
   },
   texto: {
     fontFamily: fonts.semibold,

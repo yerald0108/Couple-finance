@@ -4,7 +4,6 @@ import { getCuentas } from '../db/queries/cuentas';
 import {
   registrarGasto as registrarGastoDb,
   type DatosGasto,
-  type OpcionesGasto,
   type ResultadoGasto,
 } from '../db/queries/gastos';
 import {
@@ -17,7 +16,6 @@ import {
   editarIngreso as editarIngresoDb,
   eliminarMovimiento as eliminarMovimientoDb,
   type DatosEdicionGasto,
-  type OpcionesCambio,
   type ResultadoCambio,
 } from '../db/queries/movimientos';
 import type { Cuenta } from '../db/schema';
@@ -37,33 +35,15 @@ interface CuentasState {
   registrarIngreso: (db: SQLiteDatabase, datos: DatosIngreso) => Promise<IngresoRegistrado>;
   /**
    * Guarda un gasto (o una salida de ahorro) y recarga los saldos al instante.
-   * Si supera lo disponible devuelve los avisos SIN guardar (hasta que se confirme).
+   * Si no alcanza el dinero de esa forma (cuenta o sector) NO guarda y devuelve los motivos.
    */
-  registrarGasto: (
-    db: SQLiteDatabase,
-    datos: DatosGasto,
-    opciones?: OpcionesGasto,
-  ) => Promise<ResultadoGasto>;
-  /** Edita un gasto o una salida de ahorro y recalcula los saldos. Avisa sin guardar si no alcanza. */
-  editarGasto: (
-    db: SQLiteDatabase,
-    id: string,
-    datos: DatosEdicionGasto,
-    opciones?: OpcionesCambio,
-  ) => Promise<ResultadoCambio>;
-  /** Edita un ingreso (monto, forma, origen y reparto) y recalcula los saldos. */
-  editarIngreso: (
-    db: SQLiteDatabase,
-    id: string,
-    datos: DatosIngreso,
-    opciones?: OpcionesCambio,
-  ) => Promise<ResultadoCambio>;
+  registrarGasto: (db: SQLiteDatabase, datos: DatosGasto) => Promise<ResultadoGasto>;
+  /** Edita un gasto o una salida de ahorro y recalcula los saldos. No guarda si no alcanza el dinero. */
+  editarGasto: (db: SQLiteDatabase, id: string, datos: DatosEdicionGasto) => Promise<ResultadoCambio>;
+  /** Edita un ingreso (monto, forma, origen y reparto) y recalcula los saldos. No guarda si dejaría algo en negativo. */
+  editarIngreso: (db: SQLiteDatabase, id: string, datos: DatosIngreso) => Promise<ResultadoCambio>;
   /** Elimina un movimiento (gasto, salida de ahorro o ingreso) y recalcula los saldos. */
-  eliminarMovimiento: (
-    db: SQLiteDatabase,
-    id: string,
-    opciones?: OpcionesCambio,
-  ) => Promise<ResultadoCambio>;
+  eliminarMovimiento: (db: SQLiteDatabase, id: string) => Promise<ResultadoCambio>;
 }
 
 /** Saldos de las 3 cuentas. Las pantallas lo leen y se redibujan solas al cambiar. */
@@ -91,23 +71,23 @@ export const useCuentasStore = create<CuentasState>()((set, get) => {
       await refrescar(db);
       return resultado;
     },
-    registrarGasto: async (db, datos, opciones) => {
-      const resultado = await registrarGastoDb(db, datos, opciones);
+    registrarGasto: async (db, datos) => {
+      const resultado = await registrarGastoDb(db, datos);
       if (resultado.estado === 'guardado') await refrescar(db);
       return resultado;
     },
-    editarGasto: async (db, id, datos, opciones) => {
-      const resultado = await editarGastoDb(db, id, datos, opciones);
+    editarGasto: async (db, id, datos) => {
+      const resultado = await editarGastoDb(db, id, datos);
       if (resultado.estado === 'guardado') await refrescar(db);
       return resultado;
     },
-    editarIngreso: async (db, id, datos, opciones) => {
-      const resultado = await editarIngresoDb(db, id, datos, opciones);
+    editarIngreso: async (db, id, datos) => {
+      const resultado = await editarIngresoDb(db, id, datos);
       if (resultado.estado === 'guardado') await refrescar(db);
       return resultado;
     },
-    eliminarMovimiento: async (db, id, opciones) => {
-      const resultado = await eliminarMovimientoDb(db, id, opciones);
+    eliminarMovimiento: async (db, id) => {
+      const resultado = await eliminarMovimientoDb(db, id);
       if (resultado.estado === 'guardado') await refrescar(db);
       return resultado;
     },

@@ -10,8 +10,8 @@ interface TextosEliminar {
 }
 
 /**
- * Flujo completo para eliminar un movimiento: pregunta si está seguro, elimina y, si el cambio dejaría
- * algún saldo en negativo, enseña el aviso y pide una segunda confirmación.
+ * Flujo completo para eliminar un movimiento: pregunta si está seguro y elimina. Si eliminarlo dejaría
+ * algún saldo en negativo (un ingreso cuyo dinero ya se gastó), no lo elimina y deja el motivo en `error`.
  * Llama a `alTerminar` solo cuando el movimiento quedó eliminado.
  */
 export function useEliminarMovimiento(
@@ -39,22 +39,13 @@ export function useEliminarMovimiento(
       if (!seguro) return;
 
       setEliminando(true);
-      const primero = await eliminarMovimiento(db, movimientoId);
-      if (primero.estado === 'guardado') {
+      const resultado = await eliminarMovimiento(db, movimientoId);
+      if (resultado.estado === 'guardado') {
         alTerminar();
         return;
       }
-
-      const deTodosModos = await confirmar({
-        titulo: 'Ojo con este cambio',
-        mensaje: `${primero.avisos.join('\n\n')}\n\n¿Quieres eliminarlo de todos modos?`,
-        textoConfirmar: 'Eliminar de todos modos',
-        destructivo: true,
-      });
-      if (!deTodosModos) return;
-
-      const segundo = await eliminarMovimiento(db, movimientoId, { confirmarExceso: true });
-      if (segundo.estado === 'guardado') alTerminar();
+      // Ya se gastó parte de ese dinero: no se puede eliminar sin dejar un saldo en negativo.
+      setError(resultado.avisos.join('\n'));
     } catch (e) {
       setError(mensajeError(e));
     } finally {

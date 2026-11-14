@@ -47,37 +47,54 @@ export async function getSaldoSector(db: SQLiteDatabase, sectorId: string): Prom
   return todos.find((s) => s.sector_id === sectorId) ?? { sector_id: sectorId, cup: 0, usd: 0 };
 }
 
+const SIN_SALDO = (): TotalesPorForma => ({ efectivo: 0, transferencia: 0, usd: 0 });
+
 /**
- * Lo disponible en un sector separado por forma de dinero (efectivo, transferencia y USD).
+ * Lo disponible en CADA sector separado por forma de dinero (efectivo, transferencia y USD).
  * Sale de lo repartido en cada forma menos lo gastado en esa misma forma. Efectivo + transferencia
- * da el mismo total en pesos que `getSaldoSector`. Una forma puede quedar en negativo aunque el total
- * en pesos no lo esté (por ejemplo, si se gastó más en efectivo de lo que se repartió en efectivo).
+ * da el mismo total en pesos que `getSaldosSectores`. Una forma puede quedar en negativo aunque el total
+ * en pesos no lo esté (por ejemplo, con datos viejos o si se gastó más en una forma de la que entró).
  */
+export async function getSaldosSectoresPorForma(
+  db: SQLiteDatabase,
+): Promise<Map<string, TotalesPorForma>> {
+  const filas = await db.getAllAsync<{ sector_id: string; forma: FormaDinero; saldo: number }>(
+    `SELECT x.sector_id AS sector_id, x.forma AS forma, ROUND(SUM(x.monto), 2) AS saldo
+       FROM (
+         SELECT r.sector_id AS sector_id, m.forma AS forma, r.monto AS monto
+           FROM repartos r
+           JOIN movimientos m ON m.id = r.movimiento_id
+          WHERE r.deleted_at IS NULL AND m.deleted_at IS NULL
+         UNION ALL
+         SELECT m.sector_id, m.forma, -m.monto
+           FROM movimientos m
+          WHERE m.deleted_at IS NULL AND m.tipo <> 'ingreso'
+       ) x
+      GROUP BY x.sector_id, x.forma`,
+  );
+
+  const centavos = new Map<string, Record<FormaDinero, number>>();
+  for (const f of filas) {
+    const actual = centavos.get(f.sector_id) ?? { efectivo: 0, transferencia: 0, usd: 0 };
+    actual[f.forma] = aCentavos(f.saldo);
+    centavos.set(f.sector_id, actual);
+  }
+
+  const resultado = new Map<string, TotalesPorForma>();
+  for (const [id, c] of centavos) {
+    resultado.set(id, {
+      efectivo: deCentavos(c.efectivo),
+      transferencia: deCentavos(c.transferencia),
+      usd: deCentavos(c.usd),
+    });
+  }
+  return resultado;
+}
+
+/** Lo disponible en un solo sector por forma de dinero (todo en 0 si no tiene movimientos). */
 export async function getSaldoSectorPorForma(
   db: SQLiteDatabase,
   sectorId: string,
 ): Promise<TotalesPorForma> {
-  const filas = await db.getAllAsync<{ forma: FormaDinero; saldo: number }>(
-    `SELECT x.forma AS forma, ROUND(SUM(x.monto), 2) AS saldo
-       FROM (
-         SELECT m.forma AS forma, r.monto AS monto
-           FROM repartos r
-           JOIN movimientos m ON m.id = r.movimiento_id
-          WHERE r.sector_id = ? AND r.deleted_at IS NULL AND m.deleted_at IS NULL
-         UNION ALL
-         SELECT m.forma, -m.monto
-           FROM movimientos m
-          WHERE m.sector_id = ? AND m.deleted_at IS NULL AND m.tipo <> 'ingreso'
-       ) x
-      GROUP BY x.forma`,
-    [sectorId, sectorId],
-  );
-
-  const centavos: Record<FormaDinero, number> = { efectivo: 0, transferencia: 0, usd: 0 };
-  for (const f of filas) centavos[f.forma] = aCentavos(f.saldo);
-  return {
-    efectivo: deCentavos(centavos.efectivo),
-    transferencia: deCentavos(centavos.transferencia),
-    usd: deCentavos(centavos.usd),
-  };
+  return (await getSaldosSectoresPorForma(db)).get(sectorId) ?? SIN_SALDO();
 }
