@@ -6,7 +6,8 @@ import type { IconName } from '../../theme/iconos';
 interface ButtonProps {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary';
+  /** primary = azul, secondary = azul suave, danger = rojo suave (para eliminar). */
+  variant?: 'primary' | 'secondary' | 'danger';
   icon?: IconName;
   loading?: boolean;
   disabled?: boolean;
@@ -21,9 +22,9 @@ export function Button({
   loading = false,
   disabled = false,
 }: ButtonProps) {
-  const primary = variant === 'primary';
   const inactive = disabled || loading;
-  const textColor = primary ? colors.surface : colors.primary;
+  const textColor =
+    variant === 'primary' ? colors.surface : variant === 'danger' ? colors.negative : colors.primary;
 
   return (
     <Pressable
@@ -33,7 +34,9 @@ export function Button({
       accessibilityLabel={title}
       style={({ pressed }) => [
         styles.base,
-        primary ? styles.primary : styles.secondary,
+        variant === 'primary' && styles.primary,
+        variant === 'secondary' && styles.secondary,
+        variant === 'danger' && styles.danger,
         pressed && styles.pressed,
         inactive && styles.disabled,
       ]}
@@ -65,6 +68,9 @@ const styles = StyleSheet.create({
   },
   secondary: {
     backgroundColor: colors.primarySoft,
+  },
+  danger: {
+    backgroundColor: `${colors.negative}1A`,
   },
   pressed: {
     opacity: 0.85,

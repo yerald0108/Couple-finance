@@ -1,27 +1,55 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
+import { formaIconos } from '../../theme/iconos';
+import type { FormaDinero } from '../../types';
+import { FORMA_LABEL } from '../../utils/constants';
 import { formatMonto } from '../../utils/formatters';
+import type { TotalesPorForma } from '../../utils/totales';
 
 interface SaldoSectorCardProps {
+  /** Total en pesos del sector (efectivo + transferencia). */
   cup: number;
-  usd: number;
+  /** Lo disponible separado por forma de dinero. */
+  porForma: TotalesPorForma;
 }
 
-/** Tarjeta con lo disponible en un sector (pesos y USD aparte). */
-export function SaldoSectorCard({ cup, usd }: SaldoSectorCardProps) {
-  const enNegativo = cup < 0 || usd < 0;
+const FORMAS: FormaDinero[] = ['efectivo', 'transferencia', 'usd'];
+
+/** Tarjeta con lo disponible en un sector: total en pesos y el detalle por efectivo, transferencia y USD. */
+export function SaldoSectorCard({ cup, porForma }: SaldoSectorCardProps) {
+  const enNegativo = cup < 0 || porForma.usd < 0;
 
   return (
     <View style={styles.card}>
       <Text style={styles.label}>Disponible en este sector</Text>
-      <Text style={styles.total} accessibilityLabel={`Disponible ${formatMonto(cup)}`}>
+      <Text style={styles.total} accessibilityLabel={`Disponible en pesos ${formatMonto(cup)}`}>
         {formatMonto(cup)}
       </Text>
+      <Text style={styles.nota}>Total en pesos (efectivo + transferencia)</Text>
 
-      <View style={styles.usdPill}>
-        <Text style={styles.usdLabel}>USD aparte</Text>
-        <Text style={styles.usdValue}>{formatMonto(usd, 'USD')}</Text>
+      <View style={styles.formas}>
+        {FORMAS.map((forma) => {
+          const monto = porForma[forma];
+          return (
+            <View key={forma} style={styles.columna}>
+              <View style={styles.etiqueta}>
+                <Ionicons name={formaIconos[forma]} size={14} color="rgba(255,255,255,0.85)" />
+                <Text style={styles.formaNombre} numberOfLines={1}>
+                  {FORMA_LABEL[forma]}
+                </Text>
+              </View>
+              <Text
+                style={[styles.formaMonto, monto < 0 && styles.formaNegativa]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                accessibilityLabel={`${FORMA_LABEL[forma]} ${formatMonto(monto, forma === 'usd' ? 'USD' : 'CUP')}`}
+              >
+                {formatMonto(monto, forma === 'usd' ? 'USD' : 'CUP')}
+              </Text>
+            </View>
+          );
+        })}
       </View>
 
       {enNegativo ? (
@@ -52,25 +80,42 @@ const styles = StyleSheet.create({
     fontSize: 36,
     color: colors.surface,
   },
-  usdPill: {
+  nota: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.xs,
+    color: 'rgba(255,255,255,0.7)',
+  },
+  formas: {
     marginTop: spacing.md,
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: spacing.sm,
     backgroundColor: 'rgba(255,255,255,0.18)',
     borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
   },
-  usdLabel: {
+  columna: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  etiqueta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  formaNombre: {
+    flexShrink: 1,
     fontFamily: fonts.medium,
-    fontSize: fontSizes.sm,
+    fontSize: fontSizes.xs,
     color: 'rgba(255,255,255,0.85)',
   },
-  usdValue: {
+  formaMonto: {
     fontFamily: fonts.bold,
-    fontSize: fontSizes.lg,
+    fontSize: fontSizes.sm,
     color: colors.surface,
+  },
+  formaNegativa: {
+    color: '#FFD0D0',
   },
   alerta: {
     marginTop: spacing.sm,

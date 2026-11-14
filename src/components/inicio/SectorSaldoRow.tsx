@@ -9,10 +9,12 @@ import { formatMonto } from '../../utils/formatters';
 interface SectorSaldoRowProps {
   sector: Sector;
   saldo?: SaldoSector;
+  /** Texto pequeño bajo el nombre (por ejemplo "Este mes" en la fila de Ingresos). */
+  detalle?: string;
 }
 
 /** Fila de "Disponible por sector": icono, nombre y lo que hay (pesos, y USD si tiene). */
-export function SectorSaldoRow({ sector, saldo }: SectorSaldoRowProps) {
+export function SectorSaldoRow({ sector, saldo, detalle }: SectorSaldoRowProps) {
   const color = colorDeSector(sector);
   const cup = saldo?.cup ?? 0;
   const usd = saldo?.usd ?? 0;
@@ -22,9 +24,12 @@ export function SectorSaldoRow({ sector, saldo }: SectorSaldoRowProps) {
       <View style={[styles.iconWrap, { backgroundColor: `${color}22` }]}>
         <Ionicons name={iconoDeSector(sector)} size={20} color={color} />
       </View>
-      <Text style={styles.name} numberOfLines={1}>
-        {sector.nombre}
-      </Text>
+      <View style={styles.info}>
+        <Text style={styles.name} numberOfLines={1}>
+          {sector.nombre}
+        </Text>
+        {detalle ? <Text style={styles.detalle}>{detalle}</Text> : null}
+      </View>
       <View style={styles.amounts}>
         <Text style={[styles.amount, cup < 0 && styles.negative]}>{formatMonto(cup)}</Text>
         {usd !== 0 ? (
@@ -49,8 +54,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  name: {
+  info: {
     flex: 1,
+    gap: 2,
+  },
+  detalle: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.xs,
+    color: colors.textSecondary,
+  },
+  name: {
     fontFamily: fonts.semibold,
     fontSize: fontSizes.md,
     color: colors.text,

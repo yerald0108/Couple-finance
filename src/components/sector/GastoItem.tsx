@@ -4,27 +4,36 @@ import { colors, fontSizes, fonts, spacing } from '../../theme';
 import { monedaDeForma } from '../../utils/etiquetas';
 import { formatFechaHora } from '../../utils/fechas';
 import { formatMonto } from '../../utils/formatters';
+import { FilaPulsable } from '../common/FilaPulsable';
 import { FormaBadge } from '../common/FormaBadge';
 
 interface GastoItemProps {
   gasto: Movimiento;
+  /** Si se pasa, la fila se puede tocar (para editar o eliminar el gasto). */
+  onPress?: () => void;
 }
 
 /** Un gasto: concepto, fecha y hora, forma de dinero y monto (en rojo). */
-export function GastoItem({ gasto }: GastoItemProps) {
+export function GastoItem({ gasto, onPress }: GastoItemProps) {
+  const moneda = monedaDeForma(gasto.forma);
   return (
-    <View style={styles.fila}>
-      <View style={styles.info}>
-        <Text style={styles.titulo} numberOfLines={2}>
-          {gasto.concepto ?? 'Gasto'}
-        </Text>
-        <Text style={styles.fecha}>{formatFechaHora(gasto.fecha)}</Text>
+    <FilaPulsable
+      onPress={onPress}
+      etiqueta={`${gasto.concepto ?? 'Gasto'}, ${formatMonto(gasto.monto, moneda)}`}
+    >
+      <View style={styles.fila}>
+        <View style={styles.info}>
+          <Text style={styles.titulo} numberOfLines={2}>
+            {gasto.concepto ?? 'Gasto'}
+          </Text>
+          <Text style={styles.fecha}>{formatFechaHora(gasto.fecha)}</Text>
+        </View>
+        <View style={styles.derecha}>
+          <Text style={styles.monto}>-{formatMonto(gasto.monto, moneda)}</Text>
+          <FormaBadge forma={gasto.forma} />
+        </View>
       </View>
-      <View style={styles.derecha}>
-        <Text style={styles.monto}>-{formatMonto(gasto.monto, monedaDeForma(gasto.forma))}</Text>
-        <FormaBadge forma={gasto.forma} />
-      </View>
-    </View>
+    </FilaPulsable>
   );
 }
 

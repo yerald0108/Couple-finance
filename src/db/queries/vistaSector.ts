@@ -1,5 +1,6 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { rangoMes } from '../../utils/fechas';
+import type { TotalesPorForma } from '../../utils/totales';
 import type { Movimiento, Sector } from '../schema';
 import {
   getGastosSector,
@@ -8,17 +9,25 @@ import {
   type HistorialAhorroItem,
   type IngresoMes,
 } from './listados';
-import { getSaldoSector, type SaldoSector } from './saldosSectores';
+import { getSaldoSector, getSaldoSectorPorForma, type SaldoSector } from './saldosSectores';
 import { getSectores } from './sectores';
 
 /** Todo lo que necesita la pantalla de un sector, según su tipo. */
 export type VistaSector =
   | { clase: 'ingresos'; sector: Sector; mes: string; ingresos: IngresoMes[] }
-  | { clase: 'gastos'; sector: Sector; mes: string; saldo: SaldoSector; gastos: Movimiento[] }
+  | {
+      clase: 'gastos';
+      sector: Sector;
+      mes: string;
+      saldo: SaldoSector;
+      saldoPorForma: TotalesPorForma;
+      gastos: Movimiento[];
+    }
   | {
       clase: 'ahorro';
       sector: Sector;
       saldo: SaldoSector;
+      saldoPorForma: TotalesPorForma;
       historial: HistorialAhorroItem[];
       hayMas: boolean;
     };
@@ -40,10 +49,11 @@ export async function cargarVistaSector(
   }
 
   const saldo = await getSaldoSector(db, sector.id);
+  const saldoPorForma = await getSaldoSectorPorForma(db, sector.id);
 
   if (sector.tipo === 'ahorro') {
     const { items, hayMas } = await getHistorialAhorro(db, sector.id);
-    return { clase: 'ahorro', sector, saldo, historial: items, hayMas };
+    return { clase: 'ahorro', sector, saldo, saldoPorForma, historial: items, hayMas };
   }
 
   return {
@@ -51,6 +61,7 @@ export async function cargarVistaSector(
     sector,
     mes: rango.etiqueta,
     saldo,
+    saldoPorForma,
     gastos: await getGastosSector(db, sector.id, rango),
   };
 }

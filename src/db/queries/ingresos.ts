@@ -2,7 +2,7 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 import type { FormaDinero, OrigenIngreso } from '../../types';
 import { aCentavos, deCentavos } from '../../utils/montos';
 import { newId } from '../../utils/uuid';
-import type { Movimiento, Reparto } from '../schema';
+import type { Movimiento, Reparto, Sector } from '../schema';
 import { getSectores } from './sectores';
 
 export interface RepartoIngreso {
@@ -23,18 +23,13 @@ export interface IngresoRegistrado {
 }
 
 /**
- * Registra un ingreso. En UNA sola transacción:
- *   1) crea el movimiento (tipo "ingreso", en el sector Ingresos, con fecha y hora),
- *   2) crea un reparto por cada sector que recibe dinero,
- *   3) suma el monto al saldo de la cuenta de esa forma de dinero.
- * Si algo falla, no se guarda nada (ni el movimiento ni el saldo quedan a medias).
- * Todo es local: no usa internet.
+ * Comprueba los datos de un ingreso (monto, sectores y que la suma del reparto sea EXACTAMENTE el monto).
+ * Lanza un error con el motivo si algo no es válido. Lo usan registrar y editar un ingreso.
  */
-export async function registrarIngreso(
-  db: SQLiteDatabase,
+export function validarDatosIngreso(
+  sectores: Sector[],
   datos: DatosIngreso,
-): Promise<IngresoRegistrado> {
-  // --- Validación de seguridad (la pantalla ya validó, pero la base no se fía) ---
+): { montoCentavos: number; sectorIngresos: Sector } {
   const montoCentavos = aCentavos(datos.monto);
   if (!Number.isFinite(datos.monto) || montoCentavos <= 0) {
     throw new Error('El monto del ingreso debe ser mayor que cero.');
@@ -43,7 +38,6 @@ export async function registrarIngreso(
     throw new Error('Reparte el monto entre al menos un sector.');
   }
 
-  const sectores = await getSectores(db);
   const sectorIngresos = sectores.find((s) => s.tipo === 'ingresos');
   if (!sectorIngresos) {
     throw new Error('No se encontró el sector Ingresos.');
@@ -69,6 +63,25 @@ export async function registrarIngreso(
   if (repartidoCentavos !== montoCentavos) {
     throw new Error('La suma del reparto no es igual al monto del ingreso.');
   }
+
+  return { montoCentavos, sectorIngresos };
+}
+
+/**
+ * Registra un ingreso. En UNA sola transacción:
+ *   1) crea el movimiento (tipo "ingreso", en el sector Ingresos, con fecha y hora),
+ *   2) crea un reparto por cada sector que recibe dinero,
+ *   3) suma el monto al saldo de la cuenta de esa forma de dinero.
+ * Si algo falla, no se guarda nada (ni el movimiento ni el saldo quedan a medias).
+ * Todo es local: no usa internet.
+ */
+export async function registrarIngreso(
+  db: SQLiteDatabase,
+  datos: DatosIngreso,
+): Promise<IngresoRegistrado> {
+  // --- Validación de seguridad (la pantalla ya validó, pero la base no se fía) ---
+  const sectores = await getSectores(db);
+  const { montoCentavos, sectorIngresos } = validarDatosIngreso(sectores, datos);
 
   // --- Guardado ---
   const ahora = new Date().toISOString();

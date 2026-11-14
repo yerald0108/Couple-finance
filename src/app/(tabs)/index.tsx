@@ -4,6 +4,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Card } from '../../components/common/Card';
 import { Divider } from '../../components/common/Divider';
+import { EmptyState } from '../../components/common/EmptyState';
 import { Screen } from '../../components/common/Screen';
 import { SectionTitle } from '../../components/common/SectionTitle';
 import { ResumenInicioCard } from '../../components/inicio/ResumenInicioCard';
@@ -31,6 +32,7 @@ export default function InicioScreen() {
 
   const saldos = useSaldosSectoresStore((s) => s.saldos);
   const saldosCargando = useSaldosSectoresStore((s) => s.cargando);
+  const ingresosMes = useSaldosSectoresStore((s) => s.ingresosMes);
   const saldosError = useSaldosSectoresStore((s) => s.error);
   const cargarSaldos = useSaldosSectoresStore((s) => s.cargar);
 
@@ -44,6 +46,7 @@ export default function InicioScreen() {
   );
 
   const resumen = useMemo(() => resumenSaldos(cuentas), [cuentas]);
+  const sinDinero = resumen.efectivo === 0 && resumen.transferencia === 0 && resumen.usd === 0;
   const saldoPorSector = useMemo(() => new Map(saldos.map((s) => [s.sector_id, s])), [saldos]);
 
   const error = cuentasError ?? sectoresError ?? saldosError;
@@ -66,12 +69,31 @@ export default function InicioScreen() {
             usd={resumen.usd}
           />
 
+          {sinDinero ? (
+            <EmptyState
+              icon="wallet-outline"
+              title="Tus saldos están en cero"
+              message="Registra un ingreso y repártelo entre tus sectores para empezar a ver cómo va el dinero."
+              actionLabel="Registrar ingreso"
+              onAction={() => router.navigate('/movimientos')}
+            />
+          ) : null}
+
           <SectionTitle title="Disponible por sector" />
           <Card style={styles.listCard}>
             {sectores.map((sector, i) => (
               <Fragment key={sector.id}>
                 {i > 0 ? <Divider /> : null}
-                <SectorSaldoRow sector={sector} saldo={saldoPorSector.get(sector.id)} />
+                {sector.tipo === 'ingresos' ? (
+                  // Ingresos no "tiene saldo": su fila muestra lo que ha entrado este mes.
+                  <SectorSaldoRow
+                    sector={sector}
+                    saldo={{ sector_id: sector.id, ...ingresosMes }}
+                    detalle="Entrado este mes"
+                  />
+                ) : (
+                  <SectorSaldoRow sector={sector} saldo={saldoPorSector.get(sector.id)} />
+                )}
               </Fragment>
             ))}
           </Card>

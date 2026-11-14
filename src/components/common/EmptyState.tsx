@@ -2,16 +2,20 @@ import type { ComponentProps } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { Button } from './Button';
 import { Card } from './Card';
 
 interface EmptyStateProps {
   icon: ComponentProps<typeof Ionicons>['name'];
   title: string;
   message: string;
+  /** Si se pasan los dos, se muestra un botón que lleva a lo siguiente que hay que hacer. */
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
-/** Estado vacío: icono, título y explicación. Se usa en las pantallas aún sin construir. */
-export function EmptyState({ icon, title, message }: EmptyStateProps) {
+/** Estado vacío: icono, título, explicación y, si hace falta, un botón con la acción a seguir. */
+export function EmptyState({ icon, title, message, actionLabel, onAction }: EmptyStateProps) {
   return (
     <Card style={styles.card}>
       <View style={styles.iconWrap}>
@@ -19,6 +23,11 @@ export function EmptyState({ icon, title, message }: EmptyStateProps) {
       </View>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.message}>{message}</Text>
+      {actionLabel && onAction ? (
+        <View style={styles.action}>
+          <Button title={actionLabel} onPress={onAction} />
+        </View>
+      ) : null}
     </Card>
   );
 }
@@ -49,5 +58,9 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  action: {
+    alignSelf: 'stretch',
+    marginTop: spacing.sm,
   },
 });

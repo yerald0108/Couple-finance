@@ -20,6 +20,21 @@ export interface IngresoMes {
   repartos: RepartoDetalle[];
 }
 
+/** Total de lo que ingresó en el período: pesos (efectivo + transferencia) y USD aparte. */
+export async function getTotalIngresosPeriodo(
+  db: SQLiteDatabase,
+  rango: RangoFechas,
+): Promise<{ cup: number; usd: number }> {
+  const fila = await db.getFirstAsync<{ cup: number; usd: number }>(
+    `SELECT ROUND(COALESCE(SUM(CASE WHEN forma <> 'usd' THEN monto END), 0), 2) AS cup,
+            ROUND(COALESCE(SUM(CASE WHEN forma = 'usd' THEN monto END), 0), 2) AS usd
+       FROM movimientos
+      WHERE tipo = 'ingreso' AND deleted_at IS NULL AND fecha >= ? AND fecha < ?`,
+    [rango.desde, rango.hasta],
+  );
+  return { cup: fila?.cup ?? 0, usd: fila?.usd ?? 0 };
+}
+
 /** Ingresos del período (más nuevos primero), cada uno con su reparto por sector. */
 export async function getIngresosMes(db: SQLiteDatabase, rango: RangoFechas): Promise<IngresoMes[]> {
   const movimientos = await db.getAllAsync<Movimiento>(

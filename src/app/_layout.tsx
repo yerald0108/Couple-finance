@@ -44,6 +44,7 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="nuevo-sector" options={{ presentation: 'modal' }} />
           <Stack.Screen name="nuevo-gasto" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="editar-ingreso" options={{ presentation: 'modal' }} />
         </Stack>
       </SQLiteProvider>
     </Suspense>

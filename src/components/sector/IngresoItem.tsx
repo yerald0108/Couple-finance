@@ -4,42 +4,50 @@ import { colors, fontSizes, fonts, spacing } from '../../theme';
 import { monedaDeForma, origenLabel } from '../../utils/etiquetas';
 import { formatFechaHora } from '../../utils/fechas';
 import { formatMonto } from '../../utils/formatters';
+import { FilaPulsable } from '../common/FilaPulsable';
 import { FormaBadge } from '../common/FormaBadge';
 
 interface IngresoItemProps {
   ingreso: IngresoMes;
+  /** Si se pasa, la fila se puede tocar (para editar o eliminar el ingreso). */
+  onPress?: () => void;
 }
 
 /** Un ingreso: origen, fecha y hora, forma de dinero, monto y cómo se repartió. */
-export function IngresoItem({ ingreso }: IngresoItemProps) {
+export function IngresoItem({ ingreso, onPress }: IngresoItemProps) {
   const { movimiento, repartos } = ingreso;
   const moneda = monedaDeForma(movimiento.forma);
 
   return (
-    <View style={styles.item}>
-      <View style={styles.fila}>
-        <View style={styles.info}>
-          <Text style={styles.titulo}>{origenLabel(movimiento.origen)}</Text>
-          <Text style={styles.fecha}>{formatFechaHora(movimiento.fecha)}</Text>
+    <FilaPulsable
+      onPress={onPress}
+      etiqueta={`${origenLabel(movimiento.origen)}, ${formatMonto(movimiento.monto, moneda)}`}
+    >
+      <View style={styles.item}>
+        <View style={styles.fila}>
+          <View style={styles.info}>
+            <Text style={styles.titulo}>{origenLabel(movimiento.origen)}</Text>
+            <Text style={styles.fecha}>{formatFechaHora(movimiento.fecha)}</Text>
+          </View>
+          <View style={styles.derecha}>
+            <Text style={styles.monto}>+{formatMonto(movimiento.monto, moneda)}</Text>
+            <FormaBadge forma={movimiento.forma} />
+          </View>
         </View>
-        <View style={styles.derecha}>
-          <Text style={styles.monto}>+{formatMonto(movimiento.monto, moneda)}</Text>
-          <FormaBadge forma={movimiento.forma} />
-        </View>
-      </View>
 
-      {repartos.length > 0 ? (
-        <View style={styles.repartos}>
-          <Text style={styles.repartosTitulo}>Reparto</Text>
-          {repartos.map((r) => (
-            <View key={r.sector_id} style={styles.repartoFila}>
-              <Text style={styles.repartoNombre}>{r.sector_nombre}</Text>
-              <Text style={styles.repartoMonto}>{formatMonto(r.monto, moneda)}</Text>
-            </View>
-          ))}
-        </View>
-      ) : null}
-    </View>
+        {repartos.length > 0 ? (
+          <View style={styles.repartos}>
+            <Text style={styles.repartosTitulo}>Reparto</Text>
+            {repartos.map((r) => (
+              <View key={r.sector_id} style={styles.repartoFila}>
+                <Text style={styles.repartoNombre}>{r.sector_nombre}</Text>
+                <Text style={styles.repartoMonto}>{formatMonto(r.monto, moneda)}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+      </View>
+    </FilaPulsable>
   );
 }
 

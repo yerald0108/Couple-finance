@@ -99,6 +99,10 @@ export default function SectorScreen() {
 
   const { sector } = vista;
   const irANuevoGasto = () => router.push({ pathname: '/nuevo-gasto', params: { sectorId: sector.id } });
+  const editarGasto = (movimientoId: string) =>
+    router.push({ pathname: '/nuevo-gasto', params: { movimientoId } });
+  const editarIngreso = (movimientoId: string) =>
+    router.push({ pathname: '/editar-ingreso', params: { movimientoId } });
 
   // ---------- Ingresos ----------
   if (vista.clase === 'ingresos') {
@@ -112,16 +116,24 @@ export default function SectorScreen() {
             icon="trending-up-outline"
             title="Aún no hay ingresos este mes"
             message="Registra uno desde la pestaña Movimientos y aparecerá aquí."
+            actionLabel="Registrar ingreso"
+            onAction={() => router.navigate('/movimientos')}
           />
         ) : (
-          <Card style={styles.listCard}>
-            {vista.ingresos.map((ingreso, i) => (
-              <Fragment key={ingreso.movimiento.id}>
-                {i > 0 ? <Divider /> : null}
-                <IngresoItem ingreso={ingreso} />
-              </Fragment>
-            ))}
-          </Card>
+          <>
+            <Card style={styles.listCard}>
+              {vista.ingresos.map((ingreso, i) => (
+                <Fragment key={ingreso.movimiento.id}>
+                  {i > 0 ? <Divider /> : null}
+                  <IngresoItem
+                    ingreso={ingreso}
+                    onPress={() => editarIngreso(ingreso.movimiento.id)}
+                  />
+                </Fragment>
+              ))}
+            </Card>
+            <Text style={styles.nota}>Toca un ingreso para editarlo o eliminarlo.</Text>
+          </>
         )}
       </Screen>
     );
@@ -131,7 +143,7 @@ export default function SectorScreen() {
   if (vista.clase === 'ahorro') {
     return (
       <Screen title={sector.nombre} subtitle="Entradas y salidas de tu cuenta de ahorro" onBack={volver}>
-        <SaldoSectorCard cup={vista.saldo.cup} usd={vista.saldo.usd} />
+        <SaldoSectorCard cup={vista.saldo.cup} porForma={vista.saldoPorForma} />
         <Button title="Retirar de ahorro" icon="remove-circle-outline" onPress={irANuevoGasto} />
 
         <SectionTitle title="Historial" />
@@ -142,14 +154,23 @@ export default function SectorScreen() {
             message="Cuando repartas un ingreso hacia Ahorro, o retires dinero, lo verás aquí."
           />
         ) : (
-          <Card style={styles.listCard}>
-            {vista.historial.map((item, i) => (
-              <Fragment key={item.id}>
-                {i > 0 ? <Divider /> : null}
-                <AhorroItem item={item} />
-              </Fragment>
-            ))}
-          </Card>
+          <>
+            <Card style={styles.listCard}>
+              {vista.historial.map((item, i) => (
+                <Fragment key={`${item.clase}-${item.id}`}>
+                  {i > 0 ? <Divider /> : null}
+                  <AhorroItem
+                    item={item}
+                    onPress={item.clase === 'salida' ? () => editarGasto(item.id) : undefined}
+                  />
+                </Fragment>
+              ))}
+            </Card>
+            <Text style={styles.nota}>
+              Toca una salida para editarla o eliminarla. Las entradas se editan desde el ingreso
+              que las generó (sector Ingresos).
+            </Text>
+          </>
         )}
         {vista.hayMas ? (
           <Text style={styles.nota}>Se muestran los últimos {vista.historial.length} movimientos.</Text>
@@ -161,7 +182,7 @@ export default function SectorScreen() {
   // ---------- Gastos fijos, Gustos y sectores personalizados ----------
   return (
     <Screen title={sector.nombre} subtitle={`Gastos de ${vista.mes}`} onBack={volver}>
-      <SaldoSectorCard cup={vista.saldo.cup} usd={vista.saldo.usd} />
+      <SaldoSectorCard cup={vista.saldo.cup} porForma={vista.saldoPorForma} />
       <Button title="Añadir gasto" icon="add" onPress={irANuevoGasto} />
 
       {totalesGastos ? <TotalesFormaCard titulo="Gastado este mes por forma" totales={totalesGastos} /> : null}
@@ -174,14 +195,17 @@ export default function SectorScreen() {
           message="Toca «Añadir gasto» para registrar el primero."
         />
       ) : (
-        <Card style={styles.listCard}>
-          {vista.gastos.map((gasto, i) => (
-            <Fragment key={gasto.id}>
-              {i > 0 ? <Divider /> : null}
-              <GastoItem gasto={gasto} />
-            </Fragment>
-          ))}
-        </Card>
+        <>
+          <Card style={styles.listCard}>
+            {vista.gastos.map((gasto, i) => (
+              <Fragment key={gasto.id}>
+                {i > 0 ? <Divider /> : null}
+                <GastoItem gasto={gasto} onPress={() => editarGasto(gasto.id)} />
+              </Fragment>
+            ))}
+          </Card>
+          <Text style={styles.nota}>Toca un gasto para editarlo o eliminarlo.</Text>
+        </>
       )}
     </Screen>
   );
