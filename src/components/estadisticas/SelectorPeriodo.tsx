@@ -6,7 +6,7 @@ import type { Periodo } from '../../utils/fechas';
 interface SelectorPeriodoProps {
   periodo: Periodo;
   onPeriodoChange: (periodo: Periodo) => void;
-  /** Texto del período que se está viendo ("Hoy, 13 nov", "9 – 15 nov 2026"…). */
+  /** Texto del período que se está viendo ("Hoy, 13 nov", "9 – 15 nov 2026", "2026"…). */
   etiqueta: string;
   onAnterior: () => void;
   onSiguiente: () => void;
@@ -18,9 +18,10 @@ const OPCIONES: { value: Periodo; label: string }[] = [
   { value: 'dia', label: 'Día' },
   { value: 'semana', label: 'Semana' },
   { value: 'mes', label: 'Mes' },
+  { value: 'anio', label: 'Año' },
 ];
 
-/** Pestañas Día / Semana / Mes y flechas para ir al período anterior o siguiente. */
+/** Pestañas Día / Semana / Mes / Año y flechas para ir al período anterior o siguiente. */
 export function SelectorPeriodo({
   periodo,
   onPeriodoChange,
