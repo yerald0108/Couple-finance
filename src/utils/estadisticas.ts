@@ -14,6 +14,10 @@ export interface GastoEstadistica {
   monto: number;
   /** ISO UTC. */
   fecha: string;
+  /** Concepto del gasto (arroz, jabón…). null en las salidas de ahorro. */
+  concepto?: string | null;
+  /** Motivo de una salida de ahorro. */
+  motivo_ahorro?: string | null;
 }
 
 export interface FilaSector {
