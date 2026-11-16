@@ -10,6 +10,7 @@ import {
   Inter_700Bold,
   useFonts,
 } from '@expo-google-fonts/inter';
+import { SesionIniciador } from '../components/sincronizacion/SesionIniciador';
 import { DATABASE_NAME, initDatabase } from '../db/database';
 import { colors } from '../theme';
 
@@ -41,10 +42,12 @@ export default function RootLayout() {
     <Suspense fallback={<Loading />}>
       <SQLiteProvider databaseName={DATABASE_NAME} onInit={initDatabase} useSuspense>
         <StatusBar style="dark" />
+        <SesionIniciador />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="nuevo-sector" options={{ presentation: 'modal' }} />
           <Stack.Screen name="nuevo-gasto" options={{ presentation: 'modal' }} />
           <Stack.Screen name="editar-ingreso" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="sincronizacion" options={{ presentation: 'modal' }} />
         </Stack>
       </SQLiteProvider>
     </Suspense>

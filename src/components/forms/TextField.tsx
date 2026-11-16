@@ -5,7 +5,19 @@ import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
 interface TextFieldProps
   extends Pick<
     TextInputProps,
-    'value' | 'onChangeText' | 'placeholder' | 'maxLength' | 'multiline' | 'autoCapitalize' | 'returnKeyType' | 'onSubmitEditing'
+    | 'value'
+    | 'onChangeText'
+    | 'placeholder'
+    | 'maxLength'
+    | 'multiline'
+    | 'autoCapitalize'
+    | 'returnKeyType'
+    | 'onSubmitEditing'
+    | 'secureTextEntry'
+    | 'keyboardType'
+    | 'autoCorrect'
+    | 'autoComplete'
+    | 'textContentType'
   > {
   label: string;
   /** Mensaje de error (en rojo). Si no hay error se muestra `helper`. */

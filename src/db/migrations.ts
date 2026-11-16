@@ -22,6 +22,20 @@ const MIGRATIONS: Migration[] = [
       }
     },
   },
+  {
+    // Limpieza (sin cambios de tablas): una prueba de la Fase 7 guardaba "persona_1" / "persona_2" en los
+    // movimientos y un perfil en `ajustes`. Se descartó: quién registra cada movimiento se decidirá en la
+    // Fase 8 con cuentas. Esto deja esos datos como antes (registrado_por vacío) y corre una sola vez.
+    version: 2,
+    up: async (db) => {
+      await db.runAsync(
+        `UPDATE movimientos SET registrado_por = NULL WHERE registrado_por IN ('persona_1', 'persona_2')`,
+      );
+      await db.runAsync(
+        `DELETE FROM ajustes WHERE clave IN ('persona_local', 'nombre_persona_1', 'nombre_persona_2')`,
+      );
+    },
+  },
 ];
 
 /**

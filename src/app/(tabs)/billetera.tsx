@@ -5,6 +5,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { CuentaItem } from '../../components/billetera/CuentaItem';
 import { ResumenSaldosCard } from '../../components/billetera/ResumenSaldosCard';
 import { SectorItem } from '../../components/billetera/SectorItem';
+import { SincronizacionCard } from '../../components/billetera/SincronizacionCard';
 import { Card } from '../../components/common/Card';
 import { Divider } from '../../components/common/Divider';
 import { Screen } from '../../components/common/Screen';
@@ -74,6 +75,9 @@ export default function BilleteraScreen() {
               </Fragment>
             ))}
           </Card>
+
+          <SectionTitle title="Pareja" />
+          <SincronizacionCard />
         </>
       )}
     </Screen>
