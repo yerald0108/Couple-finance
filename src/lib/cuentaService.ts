@@ -84,6 +84,16 @@ async function llamar<T extends { error: ErrorSupabase | null }>(f: () => Promis
   return r;
 }
 
+/** Llama a una función de Supabase y devuelve su resultado; si falla lanza `ErrorCuenta` (mensaje en español). */
+export async function llamarRpc(
+  cliente: Pick<ClienteCuentas, 'rpc'>,
+  nombre: string,
+  argumentos?: Record<string, unknown>,
+): Promise<unknown> {
+  const { data } = await llamar(() => cliente.rpc(nombre, argumentos));
+  return data;
+}
+
 export async function registrarse(
   cliente: ClienteCuentas,
   datos: { email: string; password: string },

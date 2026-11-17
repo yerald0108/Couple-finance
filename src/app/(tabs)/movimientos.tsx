@@ -7,6 +7,7 @@ import { FormularioIngreso } from '../../components/movimientos/FormularioIngres
 import type { DatosIngreso } from '../../db/queries/ingresos';
 import { useCuentasStore } from '../../store/useCuentasStore';
 import { useSectoresStore } from '../../store/useSectoresStore';
+import { useSyncStore } from '../../store/useSyncStore';
 import { FORMA_LABEL } from '../../utils/constants';
 import { monedaDeForma } from '../../utils/etiquetas';
 import { formatMonto } from '../../utils/formatters';
@@ -17,11 +18,14 @@ export default function MovimientosScreen() {
   const cargarSectores = useSectoresStore((s) => s.cargar);
   const registrarIngreso = useCuentasStore((s) => s.registrarIngreso);
 
+  // Sube cuando llegaron cambios de la pareja (por ejemplo, un sector nuevo suyo).
+  const datosVersion = useSyncStore((s) => s.datosVersion);
+
   // Se leen los sectores cada vez que se entra (por si se creó uno nuevo en Billetera).
   useFocusEffect(
     useCallback(() => {
       void cargarSectores(db);
-    }, [db, cargarSectores]),
+    }, [db, datosVersion, cargarSectores]),
   );
 
   async function guardar(datos: DatosIngreso): Promise<boolean> {

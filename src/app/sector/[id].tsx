@@ -14,6 +14,7 @@ import { IngresoItem } from '../../components/sector/IngresoItem';
 import { SaldoSectorCard } from '../../components/sector/SaldoSectorCard';
 import { TotalesFormaCard } from '../../components/sector/TotalesFormaCard';
 import { cargarVistaSector, type VistaSector } from '../../db/queries/vistaSector';
+import { useSyncStore } from '../../store/useSyncStore';
 import { colors, fontSizes, fonts, spacing } from '../../theme';
 import { mensajeError } from '../../utils/errors';
 import { totalesPorForma } from '../../utils/totales';
@@ -27,6 +28,9 @@ export default function SectorScreen() {
   const [vista, setVista] = useState<VistaSector | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Sube cuando llegaron cambios de la pareja: se vuelve a leer el sector.
+  const datosVersion = useSyncStore((s) => s.datosVersion);
 
   // Se recarga cada vez que se vuelve aquí (por ejemplo, tras guardar un gasto).
   useFocusEffect(
@@ -47,7 +51,7 @@ export default function SectorScreen() {
       return () => {
         activo = false;
       };
-    }, [db, id]),
+    }, [db, id, datosVersion]),
   );
 
   const volver = useCallback(() => router.back(), [router]);

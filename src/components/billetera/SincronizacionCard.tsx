@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSesionStore } from '../../store/useSesionStore';
+import { useSyncStore } from '../../store/useSyncStore';
 import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
 import { formatearCodigo } from '../../utils/cuentaValidation';
 
@@ -12,11 +13,14 @@ export function SincronizacionCard() {
   const cargando = useSesionStore((s) => s.cargando);
   const usuario = useSesionStore((s) => s.usuario);
   const pareja = useSesionStore((s) => s.pareja);
+  const estadoSync = useSyncStore((s) => s.estado);
+  const pendientes = useSyncStore((s) => s.pendientes);
 
   let titulo = 'Sincronizar con tu pareja';
   let detalle = 'Usa la app en los dos teléfonos con la misma información.';
   let accion = 'Activar';
-  let icono: 'sync-circle' | 'checkmark-circle' | 'person-circle' | 'construct' = 'sync-circle';
+  let icono: 'sync-circle' | 'checkmark-circle' | 'person-circle' | 'construct' | 'git-merge' | 'cloud-offline' | 'alert-circle' =
+    'sync-circle';
   let colorIcono: string = colors.primary;
 
   if (!configurado) {
@@ -36,11 +40,32 @@ export function SincronizacionCard() {
     const otra = pareja.miembros.find((m) => !m.soy_yo);
     titulo = 'Pareja conectada';
     detalle = otra
-      ? `Tú y ${otra.nombre}. Los movimientos se sincronizarán en la siguiente fase.`
+      ? `Tú y ${otra.nombre}.`
       : `Código para tu pareja: ${formatearCodigo(pareja.codigo)}`;
     accion = otra ? 'Ver' : 'Ver código';
     icono = 'checkmark-circle';
     colorIcono = colors.positive;
+    if (estadoSync === 'decidir') {
+      titulo = 'Falta elegir cómo unir';
+      detalle = 'Tu pareja y este teléfono ya tienen movimientos. Toca para decidir.';
+      accion = 'Elegir';
+      icono = 'git-merge';
+      colorIcono = colors.warning;
+    } else if (estadoSync === 'sincronizando') {
+      detalle += ' Sincronizando…';
+    } else if (estadoSync === 'sin_conexion') {
+      detalle += pendientes > 0 ? ` Sin conexión: ${pendientes} por enviar.` : ' Sin conexión.';
+      icono = 'cloud-offline';
+      colorIcono = colors.warning;
+    } else if (estadoSync === 'error') {
+      detalle += ' No se pudo sincronizar.';
+      icono = 'alert-circle';
+      colorIcono = colors.negative;
+    } else if (pendientes > 0) {
+      detalle += ` ${pendientes} por enviar.`;
+    } else if (estadoSync === 'ok') {
+      detalle += ' Todo al día.';
+    }
   }
 
   return (

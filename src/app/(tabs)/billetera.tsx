@@ -12,6 +12,7 @@ import { Screen } from '../../components/common/Screen';
 import { SectionTitle } from '../../components/common/SectionTitle';
 import { useCuentasStore } from '../../store/useCuentasStore';
 import { useSectoresStore } from '../../store/useSectoresStore';
+import { useSyncStore } from '../../store/useSyncStore';
 import { colors, fontSizes, fonts } from '../../theme';
 import { resumenSaldos } from '../../utils/saldos';
 
@@ -29,12 +30,15 @@ export default function BilleteraScreen() {
   const sectoresError = useSectoresStore((s) => s.error);
   const cargarSectores = useSectoresStore((s) => s.cargar);
 
+  // Sube cuando llegaron cambios de la pareja: se vuelve a leer la base local.
+  const datosVersion = useSyncStore((s) => s.datosVersion);
+
   // Cada vez que se entra a esta pantalla se leen los datos de la base local.
   useFocusEffect(
     useCallback(() => {
       void cargarCuentas(db);
       void cargarSectores(db);
-    }, [db, cargarCuentas, cargarSectores]),
+    }, [db, datosVersion, cargarCuentas, cargarSectores]),
   );
 
   const resumen = useMemo(() => resumenSaldos(cuentas), [cuentas]);

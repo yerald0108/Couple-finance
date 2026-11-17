@@ -15,6 +15,7 @@ import { ResumenPeriodoCard } from '../../components/estadisticas/ResumenPeriodo
 import { SelectorPeriodo } from '../../components/estadisticas/SelectorPeriodo';
 import { UsoSectoresCard } from '../../components/estadisticas/UsoSectoresCard';
 import { cargarEstadisticas, type DatosEstadisticas } from '../../db/queries/estadisticas';
+import { useSyncStore } from '../../store/useSyncStore';
 import { colors, fontSizes, fonts, formaColors } from '../../theme';
 import { colorDeSector, formaIconos, iconoDeSector } from '../../theme/iconos';
 import { FORMA_LABEL } from '../../utils/constants';
@@ -35,6 +36,9 @@ export default function EstadisticasScreen() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Sube cuando llegaron cambios de la pareja: se recalcula con lo nuevo.
+  const datosVersion = useSyncStore((s) => s.datosVersion);
+
   // Se recalcula al entrar a la pestaña y cada vez que cambia el período elegido.
   useFocusEffect(
     useCallback(() => {
@@ -54,7 +58,7 @@ export default function EstadisticasScreen() {
       return () => {
         activo = false;
       };
-    }, [db, periodo, desplazamiento]),
+    }, [db, periodo, desplazamiento, datosVersion]),
   );
 
   function cambiarPeriodo(nuevo: Periodo) {

@@ -3,6 +3,7 @@ import { Share, StyleSheet, Text, View } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import type { ParejaInfo } from '../../lib/cuentaService';
 import { useSesionStore } from '../../store/useSesionStore';
+import { useSyncStore } from '../../store/useSyncStore';
 import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
 import {
   NOMBRE_PAREJA_MAX,
@@ -15,6 +16,8 @@ import { Card } from '../common/Card';
 import { Divider } from '../common/Divider';
 import { TextField } from '../forms/TextField';
 import { CerrarSesionBoton } from './CerrarSesionBoton';
+import { DecisionUnir } from './DecisionUnir';
+import { EstadoSincronizacion } from './EstadoSincronizacion';
 
 interface VistaParejaProps {
   pareja: ParejaInfo;
@@ -26,6 +29,7 @@ export function VistaPareja({ pareja }: VistaParejaProps) {
   const refrescar = useSesionStore((s) => s.refrescar);
   const cambiarNombre = useSesionStore((s) => s.cambiarNombre);
 
+  const estadoSync = useSyncStore((s) => s.estado);
   const completa = pareja.miembros.length >= 2;
   const yo = pareja.miembros.find((m) => m.soy_yo);
 
@@ -68,12 +72,13 @@ export function VistaPareja({ pareja }: VistaParejaProps) {
 
   return (
     <View style={styles.wrap}>
+      {estadoSync === 'decidir' ? <DecisionUnir /> : null}
+
       {completa ? (
         <Card style={styles.card}>
           <Text style={styles.titulo}>Pareja conectada</Text>
           <Text style={styles.texto}>
-            Ya son dos cuentas. Tus movimientos se mostrarán con tu nombre y los de tu pareja con el suyo.
-            El envío de movimientos entre los teléfonos llega en la siguiente fase.
+            Ya son dos cuentas. Lo que registre cualquiera de los dos se envía al otro teléfono cuando hay internet.
           </Text>
         </Card>
       ) : (
@@ -89,6 +94,8 @@ export function VistaPareja({ pareja }: VistaParejaProps) {
           <Button title="Ya se unió, actualizar" variant="secondary" icon="refresh" onPress={actualizar} loading={actualizando} />
         </Card>
       )}
+
+      {estadoSync !== 'decidir' && estadoSync !== 'inactivo' ? <EstadoSincronizacion /> : null}
 
       <Card style={styles.card}>
         <Text style={styles.titulo}>Miembros</Text>

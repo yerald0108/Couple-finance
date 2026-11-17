@@ -1,4 +1,5 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
+import { SCHEMA_V3 } from '../sync/syncSql';
 import { SCHEMA_V1, seedV1 } from './schemaSql';
 
 interface Migration {
@@ -34,6 +35,14 @@ const MIGRATIONS: Migration[] = [
       await db.runAsync(
         `DELETE FROM ajustes WHERE clave IN ('persona_local', 'nombre_persona_1', 'nombre_persona_2')`,
       );
+    },
+  },
+  {
+    // Fase 8B: cola de cambios pendientes y disparadores para sincronizar con la pareja.
+    // No cambia ninguna tabla existente; sin la sincronización activada no hace nada.
+    version: 3,
+    up: async (db) => {
+      await db.execAsync(SCHEMA_V3);
     },
   },
 ];

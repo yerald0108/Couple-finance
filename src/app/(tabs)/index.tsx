@@ -13,6 +13,7 @@ import { SectorTile } from '../../components/inicio/SectorTile';
 import { useCuentasStore } from '../../store/useCuentasStore';
 import { useSaldosSectoresStore } from '../../store/useSaldosSectoresStore';
 import { useSectoresStore } from '../../store/useSectoresStore';
+import { useSyncStore } from '../../store/useSyncStore';
 import { colors, fontSizes, fonts, spacing } from '../../theme';
 import { resumenSaldos } from '../../utils/saldos';
 
@@ -36,13 +37,16 @@ export default function InicioScreen() {
   const saldosError = useSaldosSectoresStore((s) => s.error);
   const cargarSaldos = useSaldosSectoresStore((s) => s.cargar);
 
+  // Sube cuando llegaron cambios de la pareja: se vuelve a leer la base local.
+  const datosVersion = useSyncStore((s) => s.datosVersion);
+
   // Cada vez que se vuelve a Inicio (por ejemplo tras guardar un gasto) se actualiza todo.
   useFocusEffect(
     useCallback(() => {
       void cargarCuentas(db);
       void cargarSectores(db);
       void cargarSaldos(db);
-    }, [db, cargarCuentas, cargarSectores, cargarSaldos]),
+    }, [db, datosVersion, cargarCuentas, cargarSectores, cargarSaldos]),
   );
 
   const resumen = useMemo(() => resumenSaldos(cuentas), [cuentas]);
