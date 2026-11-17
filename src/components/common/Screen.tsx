@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
@@ -10,12 +10,32 @@ interface ScreenProps {
   subtitle?: string;
   /** Si se pasa, se muestra un botón "atrás" junto al título. */
   onBack?: () => void;
+  /** Si se pasa, se muestra a la derecha del título (por ejemplo, un botón de la barra superior). */
+  derecha?: ReactNode;
+  /**
+   * Si se pasa, al tirar de la pantalla hacia abajo se muestra el indicador de "actualizando" mientras
+   * esta función no termina. Debe manejar sus propios errores.
+   */
+  onRefresh?: () => Promise<void>;
   children?: ReactNode;
 }
 
 /** Contenedor base de cada pantalla: respeta la barra superior, título y scroll. */
-export function Screen({ title, subtitle, onBack, children }: ScreenProps) {
+export function Screen({ title, subtitle, onBack, derecha, onRefresh, children }: ScreenProps) {
   const alturaTeclado = useKeyboardHeight();
+  const [refrescando, setRefrescando] = useState(false);
+
+  async function refrescar() {
+    if (!onRefresh || refrescando) return;
+    setRefrescando(true);
+    try {
+      await onRefresh();
+    } catch {
+      // quien pasa `onRefresh` avisa de sus errores; aquí solo se detiene el indicador
+    } finally {
+      setRefrescando(false);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -25,6 +45,17 @@ export function Screen({ title, subtitle, onBack, children }: ScreenProps) {
         // Con el teclado abierto, un toque en un botón funciona al primer intento.
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
+        refreshControl={
+          onRefresh ? (
+            <RefreshControl
+              refreshing={refrescando}
+              onRefresh={refrescar}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+              progressBackgroundColor={colors.surface}
+            />
+          ) : undefined
+        }
       >
         <View style={styles.header}>
           {onBack ? (
@@ -48,6 +79,7 @@ export function Screen({ title, subtitle, onBack, children }: ScreenProps) {
               </Text>
             ) : null}
           </View>
+          {derecha ? <View style={styles.derecha}>{derecha}</View> : null}
         </View>
         {children}
       </ScrollView>
@@ -82,6 +114,9 @@ const styles = StyleSheet.create({
   titles: {
     flex: 1,
     gap: spacing.xs,
+  },
+  derecha: {
+    alignSelf: 'flex-start',
   },
   title: {
     fontFamily: fonts.bold,

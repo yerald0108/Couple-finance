@@ -6,11 +6,13 @@ interface FilaPulsableProps {
   onPress?: () => void;
   /** Lo que lee el lector de pantalla al enfocar la fila. */
   etiqueta?: string;
+  /** Lo que lee el lector de pantalla como pista de lo que pasa al tocar. */
+  pista?: string;
   children: ReactNode;
 }
 
 /** Envuelve una fila de una lista para que se pueda tocar (por ejemplo, para editarla). */
-export function FilaPulsable({ onPress, etiqueta, children }: FilaPulsableProps) {
+export function FilaPulsable({ onPress, etiqueta, pista = 'Toca para editar o eliminar', children }: FilaPulsableProps) {
   if (!onPress) return <>{children}</>;
 
   return (
@@ -18,7 +20,7 @@ export function FilaPulsable({ onPress, etiqueta, children }: FilaPulsableProps)
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={etiqueta}
-      accessibilityHint="Toca para editar o eliminar"
+      accessibilityHint={pista}
       style={({ pressed }) => (pressed ? { opacity: 0.6 } : undefined)}
     >
       {children}
