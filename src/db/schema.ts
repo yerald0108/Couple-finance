@@ -3,7 +3,6 @@ import type {
   FormaDinero,
   Moneda,
   OrigenIngreso,
-  Persona,
   TipoMovimiento,
   TipoSector,
 } from '../types';
@@ -49,7 +48,8 @@ export interface Movimiento {
   motivo_ahorro: string | null;
   es_salida_ahorro: number; // 1 = salida del ahorro
   fecha: string;
-  registrado_por: Persona | null;
+  /** Id de la cuenta (Supabase) que registró el movimiento. null = aún sin dueño (de antes de sincronizar). */
+  registrado_por: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;

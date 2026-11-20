@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useMemo } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Card } from '../../components/common/Card';
@@ -7,14 +7,19 @@ import { Divider } from '../../components/common/Divider';
 import { EmptyState } from '../../components/common/EmptyState';
 import { Screen } from '../../components/common/Screen';
 import { SectionTitle } from '../../components/common/SectionTitle';
+import { CampanaNotificaciones } from '../../components/inicio/CampanaNotificaciones';
 import { ResumenInicioCard } from '../../components/inicio/ResumenInicioCard';
 import { SectorSaldoRow } from '../../components/inicio/SectorSaldoRow';
 import { SectorTile } from '../../components/inicio/SectorTile';
 import { useCuentasStore } from '../../store/useCuentasStore';
 import { useSaldosSectoresStore } from '../../store/useSaldosSectoresStore';
 import { useSectoresStore } from '../../store/useSectoresStore';
+import { syncStore, useSyncStore } from '../../store/useSyncStore';
 import { colors, fontSizes, fonts, spacing } from '../../theme';
 import { resumenSaldos } from '../../utils/saldos';
+
+/** Cuánto se espera, como máximo, a que termine la sincronización al tirar de la pantalla. */
+const ESPERA_MAXIMA_MS = 20_000;
 
 export default function InicioScreen() {
   const db = useSQLiteContext();
@@ -36,14 +41,35 @@ export default function InicioScreen() {
   const saldosError = useSaldosSectoresStore((s) => s.error);
   const cargarSaldos = useSaldosSectoresStore((s) => s.cargar);
 
+  // Sube cuando llegaron cambios de la pareja: se vuelve a leer la base local.
+  const datosVersion = useSyncStore((s) => s.datosVersion);
+
   // Cada vez que se vuelve a Inicio (por ejemplo tras guardar un gasto) se actualiza todo.
   useFocusEffect(
     useCallback(() => {
       void cargarCuentas(db);
       void cargarSectores(db);
       void cargarSaldos(db);
-    }, [db, cargarCuentas, cargarSectores, cargarSaldos]),
+    }, [db, datosVersion, cargarCuentas, cargarSectores, cargarSaldos]),
   );
+
+  // Tirar de la pantalla hacia abajo: sincroniza con tu pareja (si está conectada) y vuelve a leer todo.
+  const refrescar = useCallback(async () => {
+    let aviso: string | null = null;
+    const sync = syncStore.getState();
+    if (sync.activo && sync.estado !== 'decidir') {
+      // Si no responde en 20 s se deja de esperar (sigue en segundo plano) y se muestra lo guardado en este teléfono.
+      await Promise.race([sync.sincronizar(db), new Promise<void>((r) => setTimeout(r, ESPERA_MAXIMA_MS))]);
+      const despues = syncStore.getState();
+      if (despues.estado === 'sin_conexion') {
+        aviso = 'No hay conexión. Se muestran los datos guardados en este teléfono; lo que registres se enviará cuando vuelva internet.';
+      } else if (despues.estado === 'error') {
+        aviso = despues.error ?? 'Inténtalo de nuevo en un momento.';
+      }
+    }
+    await Promise.all([cargarCuentas(db), cargarSectores(db), cargarSaldos(db)]);
+    if (aviso) Alert.alert('No se pudo sincronizar', aviso);
+  }, [db, cargarCuentas, cargarSectores, cargarSaldos]);
 
   const resumen = useMemo(() => resumenSaldos(cuentas), [cuentas]);
   const sinDinero = resumen.efectivo === 0 && resumen.transferencia === 0 && resumen.usd === 0;
@@ -53,7 +79,12 @@ export default function InicioScreen() {
   const cargando = cuentasCargando || sectoresCargando || saldosCargando;
 
   return (
-    <Screen title="Inicio" subtitle="Cómo va el dinero de los dos">
+    <Screen
+      title="Inicio"
+      subtitle="Cómo va el dinero de los dos"
+      derecha={<CampanaNotificaciones />}
+      onRefresh={refrescar}
+    >
       {error ? (
         <Card>
           <Text style={styles.error}>No se pudieron cargar los datos: {error}</Text>

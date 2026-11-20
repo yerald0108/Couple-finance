@@ -4,6 +4,7 @@ import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
 import type { Moneda } from '../../types';
 import { simboloMoneda } from '../../utils/formatters';
 import { limpiarMontoTexto } from '../../utils/montos';
+import { useAlEnfocar } from '../common/AlEnfocarContext';
 
 interface MontoInputProps {
   value: string;
@@ -34,6 +35,7 @@ export function MontoInput({
   accessibilityLabel,
 }: MontoInputProps) {
   const [enfocado, setEnfocado] = useState(false);
+  const alEnfocar = useAlEnfocar();
 
   return (
     <View style={compacto ? styles.wrapCompacto : styles.wrap}>
@@ -55,7 +57,10 @@ export function MontoInput({
           keyboardType="decimal-pad"
           placeholder={placeholder}
           placeholderTextColor={colors.textMuted}
-          onFocus={() => setEnfocado(true)}
+          onFocus={() => {
+            setEnfocado(true);
+            alEnfocar();
+          }}
           onBlur={() => setEnfocado(false)}
           accessibilityLabel={accessibilityLabel ?? label}
           style={[styles.input, compacto && styles.inputCompacto]}
