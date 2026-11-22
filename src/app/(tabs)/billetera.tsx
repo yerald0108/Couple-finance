@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useMemo } from 'react';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { CuentaItem } from '../../components/billetera/CuentaItem';
@@ -8,6 +8,8 @@ import { SectorItem } from '../../components/billetera/SectorItem';
 import { SincronizacionCard } from '../../components/billetera/SincronizacionCard';
 import { Card } from '../../components/common/Card';
 import { Divider } from '../../components/common/Divider';
+import { EsqueletoBilletera } from '../../components/esqueletos/Esqueletos';
+import { useEsqueleto } from '../../hooks/useEsqueleto';
 import { Screen } from '../../components/common/Screen';
 import { SectionTitle } from '../../components/common/SectionTitle';
 import { useCuentasStore } from '../../store/useCuentasStore';
@@ -43,6 +45,8 @@ export default function BilleteraScreen() {
 
   const resumen = useMemo(() => resumenSaldos(cuentas), [cuentas]);
   const error = cuentasError ?? sectoresError;
+  const cargando = cuentasCargando || sectoresCargando;
+  const carga = useEsqueleto(cargando);
 
   return (
     <Screen title="Billetera" subtitle="Tus cuentas y sectores">
@@ -50,9 +54,9 @@ export default function BilleteraScreen() {
         <Card>
           <Text style={styles.error}>No se pudieron cargar los datos: {error}</Text>
         </Card>
-      ) : cuentasCargando || sectoresCargando ? (
-        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
-      ) : (
+      ) : carga === 'esqueleto' ? (
+        <EsqueletoBilletera />
+      ) : cargando ? null : (
         <>
           <ResumenSaldosCard totalCup={resumen.totalCup} usd={resumen.usd} />
 
@@ -89,9 +93,6 @@ export default function BilleteraScreen() {
 }
 
 const styles = StyleSheet.create({
-  loader: {
-    marginTop: 40,
-  },
   listCard: {
     paddingVertical: 4,
   },

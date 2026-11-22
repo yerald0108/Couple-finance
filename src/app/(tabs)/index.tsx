@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useMemo } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Card } from '../../components/common/Card';
@@ -11,6 +11,8 @@ import { CampanaNotificaciones } from '../../components/inicio/CampanaNotificaci
 import { ResumenInicioCard } from '../../components/inicio/ResumenInicioCard';
 import { SectorSaldoRow } from '../../components/inicio/SectorSaldoRow';
 import { SectorTile } from '../../components/inicio/SectorTile';
+import { EsqueletoInicio } from '../../components/esqueletos/Esqueletos';
+import { useEsqueleto } from '../../hooks/useEsqueleto';
 import { useCuentasStore } from '../../store/useCuentasStore';
 import { useSaldosSectoresStore } from '../../store/useSaldosSectoresStore';
 import { useSectoresStore } from '../../store/useSectoresStore';
@@ -77,6 +79,7 @@ export default function InicioScreen() {
 
   const error = cuentasError ?? sectoresError ?? saldosError;
   const cargando = cuentasCargando || sectoresCargando || saldosCargando;
+  const carga = useEsqueleto(cargando);
 
   return (
     <Screen
@@ -89,9 +92,9 @@ export default function InicioScreen() {
         <Card>
           <Text style={styles.error}>No se pudieron cargar los datos: {error}</Text>
         </Card>
-      ) : cargando ? (
-        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
-      ) : (
+      ) : carga === 'esqueleto' ? (
+        <EsqueletoInicio />
+      ) : cargando ? null : (
         <>
           <ResumenInicioCard
             totalCup={resumen.totalCup}
@@ -146,9 +149,6 @@ export default function InicioScreen() {
 }
 
 const styles = StyleSheet.create({
-  loader: {
-    marginTop: 40,
-  },
   listCard: {
     paddingVertical: 4,
     paddingHorizontal: spacing.lg,

@@ -13,6 +13,7 @@ import {
   type ModoUnion,
   type SesionSync,
 } from '../sync/motor';
+import type { EstadoTiempoReal } from '../sync/tiempoReal';
 
 export type EstadoSincronizacion =
   /** Sin pareja o sin sesión: no se sincroniza nada. */
@@ -35,7 +36,11 @@ export interface SyncState {
   decision: { locales: number; remotos: number } | null;
   /** Sube cada vez que llegaron cambios de la pareja: las pantallas lo usan para volver a leer la base. */
   datosVersion: number;
+  /** Estado de la conexión en tiempo real con Supabase (la consulta periódica sigue como respaldo). */
+  tiempoReal: EstadoTiempoReal;
 
+  /** Lo fija `SyncIniciador` según el canal de tiempo real. */
+  fijarTiempoReal: (estado: EstadoTiempoReal) => void;
   /** Prepara y arranca la sincronización de esta cuenta (si hay que decidir, se queda esperando). */
   preparar: (db: SQLiteDatabase, sesion: SesionSync) => Promise<void>;
   /** Respuesta a la pregunta "unir o empezar". */
@@ -69,6 +74,11 @@ export function crearSyncStore(cliente: ClienteSync | null): StoreApi<SyncState>
       error: null,
       decision: null,
       datosVersion: 0,
+      tiempoReal: 'apagado',
+
+      fijarTiempoReal: (estado) => {
+        if (get().tiempoReal !== estado) set({ tiempoReal: estado });
+      },
 
       preparar: async (db, sesion) => {
         if (!cliente) return;
@@ -133,7 +143,7 @@ export function crearSyncStore(cliente: ClienteSync | null): StoreApi<SyncState>
         } catch {
           // si falla, el próximo arranque lo vuelve a intentar
         }
-        set({ estado: 'inactivo', activo: false, pendientes: 0, decision: null, error: null });
+        set({ estado: 'inactivo', activo: false, pendientes: 0, decision: null, error: null, tiempoReal: 'apagado' });
       },
 
       leerPendientes: async (db) => {

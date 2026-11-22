@@ -1,15 +1,17 @@
 import { Fragment, useCallback, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Divider } from '../../components/common/Divider';
 import { EmptyState } from '../../components/common/EmptyState';
+import { EsqueletoDetalle } from '../../components/esqueletos/Esqueletos';
 import { FormaBadge } from '../../components/common/FormaBadge';
 import { Screen } from '../../components/common/Screen';
 import { SectionTitle } from '../../components/common/SectionTitle';
 import { getDetalleMovimiento, type DetalleMovimiento } from '../../db/queries/detalleMovimiento';
+import { useEsqueleto } from '../../hooks/useEsqueleto';
 import { useSesionStore } from '../../store/useSesionStore';
 import { useSyncStore } from '../../store/useSyncStore';
 import { colors, fontSizes, fonts, spacing } from '../../theme';
@@ -46,6 +48,7 @@ export default function MovimientoScreen() {
   const [detalle, setDetalle] = useState<DetalleMovimiento | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const carga = useEsqueleto(cargando);
 
   // Se vuelve a leer al volver de editar (el movimiento pudo cambiar o eliminarse) y cuando llegan cambios de la pareja.
   useFocusEffect(
@@ -74,7 +77,7 @@ export default function MovimientoScreen() {
   if (cargando) {
     return (
       <Screen title="Detalle" onBack={volver}>
-        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+        {carga === 'esqueleto' ? <EsqueletoDetalle /> : null}
       </Screen>
     );
   }
@@ -172,9 +175,6 @@ export default function MovimientoScreen() {
 }
 
 const styles = StyleSheet.create({
-  loader: {
-    marginTop: 40,
-  },
   hero: {
     alignItems: 'center',
     gap: spacing.md,

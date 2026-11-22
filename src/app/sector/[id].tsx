@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Button } from '../../components/common/Button';
@@ -8,15 +8,19 @@ import { Divider } from '../../components/common/Divider';
 import { EmptyState } from '../../components/common/EmptyState';
 import { Screen } from '../../components/common/Screen';
 import { SectionTitle } from '../../components/common/SectionTitle';
+import { EsqueletoSector } from '../../components/esqueletos/Esqueletos';
 import { AhorroItem } from '../../components/sector/AhorroItem';
 import { GastoItem } from '../../components/sector/GastoItem';
 import { IngresoItem } from '../../components/sector/IngresoItem';
 import { SaldoSectorCard } from '../../components/sector/SaldoSectorCard';
 import { TotalesFormaCard } from '../../components/sector/TotalesFormaCard';
 import { cargarVistaSector, type VistaSector } from '../../db/queries/vistaSector';
+import { useEsqueleto } from '../../hooks/useEsqueleto';
+import { useSesionStore } from '../../store/useSesionStore';
 import { useSyncStore } from '../../store/useSyncStore';
 import { colors, fontSizes, fonts, spacing } from '../../theme';
 import { mensajeError } from '../../utils/errors';
+import { autorDe } from '../../utils/notificaciones';
 import { totalesPorForma } from '../../utils/totales';
 
 /** Pantalla de un sector: lista del mes (o historial, en Ahorro) y botón para añadir. */
@@ -28,9 +32,13 @@ export default function SectorScreen() {
   const [vista, setVista] = useState<VistaSector | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const carga = useEsqueleto(cargando);
 
   // Sube cuando llegaron cambios de la pareja: se vuelve a leer el sector.
   const datosVersion = useSyncStore((s) => s.datosVersion);
+  // Para la etiqueta "registrado por" de cada movimiento.
+  const yoId = useSesionStore((s) => s.usuario?.id ?? null);
+  const miembros = useSesionStore((s) => s.miembros);
 
   // Se recarga cada vez que se vuelve aquí (por ejemplo, tras guardar un gasto).
   useFocusEffect(
@@ -73,8 +81,8 @@ export default function SectorScreen() {
 
   if (cargando) {
     return (
-      <Screen title="Cargando…" onBack={volver}>
-        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
+      <Screen title="Sector" onBack={volver}>
+        {carga === 'esqueleto' ? <EsqueletoSector /> : null}
       </Screen>
     );
   }
@@ -131,6 +139,7 @@ export default function SectorScreen() {
                   {i > 0 ? <Divider /> : null}
                   <IngresoItem
                     ingreso={ingreso}
+                    autor={autorDe(ingreso.movimiento.registrado_por, yoId, miembros)}
                     onPress={() => editarIngreso(ingreso.movimiento.id)}
                   />
                 </Fragment>
@@ -165,6 +174,7 @@ export default function SectorScreen() {
                   {i > 0 ? <Divider /> : null}
                   <AhorroItem
                     item={item}
+                    autor={autorDe(item.registrado_por, yoId, miembros)}
                     onPress={item.clase === 'salida' ? () => editarGasto(item.id) : undefined}
                   />
                 </Fragment>
@@ -204,7 +214,7 @@ export default function SectorScreen() {
             {vista.gastos.map((gasto, i) => (
               <Fragment key={gasto.id}>
                 {i > 0 ? <Divider /> : null}
-                <GastoItem gasto={gasto} onPress={() => editarGasto(gasto.id)} />
+                <GastoItem gasto={gasto} autor={autorDe(gasto.registrado_por, yoId, miembros)} onPress={() => editarGasto(gasto.id)} />
               </Fragment>
             ))}
           </Card>
@@ -216,9 +226,6 @@ export default function SectorScreen() {
 }
 
 const styles = StyleSheet.create({
-  loader: {
-    marginTop: 40,
-  },
   listCard: {
     paddingVertical: 4,
     paddingHorizontal: spacing.lg,

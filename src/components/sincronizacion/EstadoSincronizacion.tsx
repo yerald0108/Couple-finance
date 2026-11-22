@@ -14,6 +14,7 @@ export function EstadoSincronizacion() {
   const pendientes = useSyncStore((s) => s.pendientes);
   const ultimaSync = useSyncStore((s) => s.ultimaSync);
   const error = useSyncStore((s) => s.error);
+  const tiempoReal = useSyncStore((s) => s.tiempoReal);
   const sincronizar = useSyncStore((s) => s.sincronizar);
 
   const sincronizando = estado === 'sincronizando';
@@ -58,6 +59,14 @@ export function EstadoSincronizacion() {
       {estado === 'error' && error ? <Text style={styles.error}>{error}</Text> : null}
       <Text style={styles.texto}>{lineaPendientes}</Text>
       <Text style={styles.texto}>Última sincronización: {textoHace(ultimaSync)}.</Text>
+      <Text style={styles.texto}>
+        Tiempo real:{' '}
+        {tiempoReal === 'conectado'
+          ? 'activo. Lo que registre tu pareja aparece al instante.'
+          : tiempoReal === 'apagado'
+            ? 'sin conexión. Se consulta cada pocos segundos.'
+            : 'conectando…'}
+      </Text>
       <Button
         title="Sincronizar ahora"
         variant="secondary"

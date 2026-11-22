@@ -1,9 +1,10 @@
-import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { StyleSheet, Text } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Card } from '../../components/common/Card';
 import { EmptyState } from '../../components/common/EmptyState';
+import { EsqueletoEstadisticas } from '../../components/esqueletos/Esqueletos';
 import { Screen } from '../../components/common/Screen';
 import { SectionTitle } from '../../components/common/SectionTitle';
 import { AnalisisCard } from '../../components/estadisticas/AnalisisCard';
@@ -15,6 +16,7 @@ import { ResumenPeriodoCard } from '../../components/estadisticas/ResumenPeriodo
 import { SelectorPeriodo } from '../../components/estadisticas/SelectorPeriodo';
 import { UsoSectoresCard } from '../../components/estadisticas/UsoSectoresCard';
 import { cargarEstadisticas, type DatosEstadisticas } from '../../db/queries/estadisticas';
+import { useEsqueleto } from '../../hooks/useEsqueleto';
 import { useSyncStore } from '../../store/useSyncStore';
 import { colors, fontSizes, fonts, formaColors } from '../../theme';
 import { colorDeSector, formaIconos, iconoDeSector } from '../../theme/iconos';
@@ -35,6 +37,9 @@ export default function EstadisticasScreen() {
   const [datos, setDatos] = useState<DatosEstadisticas | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const carga = useEsqueleto(cargando);
+  /** Período (con su desplazamiento) del que son los `datos` mostrados. */
+  const claveCargada = useRef<string | null>(null);
 
   // Sube cuando llegaron cambios de la pareja: se recalcula con lo nuevo.
   const datosVersion = useSyncStore((s) => s.datosVersion);
@@ -43,11 +48,15 @@ export default function EstadisticasScreen() {
   useFocusEffect(
     useCallback(() => {
       let activo = true;
+      const clave = `${periodo}:${desplazamiento}`;
+      // Al cambiar de período se vuelve a mostrar la carga (si tarda); un cambio de la pareja recalcula en silencio.
+      if (claveCargada.current !== clave) setCargando(true);
       (async () => {
         try {
           const resultado = await cargarEstadisticas(db, periodo, desplazamiento);
           if (!activo) return;
           setDatos(resultado);
+          claveCargada.current = clave;
           setError(null);
         } catch (e) {
           if (activo) setError(mensajeError(e));
@@ -158,9 +167,9 @@ export default function EstadisticasScreen() {
         <Card>
           <Text style={styles.error}>No se pudieron cargar los datos: {error}</Text>
         </Card>
-      ) : cargando || !stats || !analisis || !datos ? (
-        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
-      ) : !hayGastos && !hayIngresos ? (
+      ) : carga === 'esqueleto' ? (
+        <EsqueletoEstadisticas />
+      ) : !stats || !analisis || !datos ? null : !hayGastos && !hayIngresos ? (
         <EmptyState
           icon="receipt-outline"
           title="Sin movimientos en este período"
@@ -233,9 +242,6 @@ export default function EstadisticasScreen() {
 }
 
 const styles = StyleSheet.create({
-  loader: {
-    marginTop: 40,
-  },
   error: {
     fontFamily: fonts.regular,
     fontSize: fontSizes.sm,

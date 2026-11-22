@@ -1,11 +1,13 @@
 import { Fragment, useCallback, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Card } from '../components/common/Card';
 import { Divider } from '../components/common/Divider';
 import { EmptyState } from '../components/common/EmptyState';
 import { Screen } from '../components/common/Screen';
+import { EsqueletoNotificaciones } from '../components/esqueletos/Esqueletos';
+import { useEsqueleto } from '../hooks/useEsqueleto';
 import { NotificacionItem } from '../components/notificaciones/NotificacionItem';
 import { useNotificacionesStore } from '../store/useNotificacionesStore';
 import { useSesionStore } from '../store/useSesionStore';
@@ -27,6 +29,7 @@ export default function NotificacionesScreen() {
   const cargando = useNotificacionesStore((s) => s.cargando);
   const error = useNotificacionesStore((s) => s.error);
   const cargar = useNotificacionesStore((s) => s.cargar);
+  const carga = useEsqueleto(cargando);
   const marcarVistas = useNotificacionesStore((s) => s.marcarVistas);
 
   // Los que eran nuevos al entrar siguen marcados mientras estás aquí, aunque ya se hayan marcado como vistos.
@@ -54,9 +57,9 @@ export default function NotificacionesScreen() {
         <Card>
           <Text style={styles.error}>No se pudieron cargar los datos: {error}</Text>
         </Card>
-      ) : cargando ? (
-        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
-      ) : items.length === 0 ? (
+      ) : carga === 'esqueleto' ? (
+        <EsqueletoNotificaciones />
+      ) : cargando ? null : items.length === 0 ? (
         <EmptyState
           icon="notifications-outline"
           title="Sin movimientos todavía"
@@ -89,9 +92,6 @@ export default function NotificacionesScreen() {
 }
 
 const styles = StyleSheet.create({
-  loader: {
-    marginTop: 40,
-  },
   lista: {
     padding: 0,
     overflow: 'hidden',

@@ -4,17 +4,21 @@ import { colors, fontSizes, fonts, spacing } from '../../theme';
 import { monedaDeForma } from '../../utils/etiquetas';
 import { formatFechaHora } from '../../utils/fechas';
 import { formatMonto } from '../../utils/formatters';
+import type { Autor } from '../../utils/notificaciones';
+import { AutorChip } from '../common/AutorChip';
 import { FilaPulsable } from '../common/FilaPulsable';
 import { FormaBadge } from '../common/FormaBadge';
 
 interface GastoItemProps {
   gasto: Movimiento;
+  /** Quién lo registró (si se sabe, se muestra como etiqueta). */
+  autor?: Autor;
   /** Si se pasa, la fila se puede tocar (para editar o eliminar el gasto). */
   onPress?: () => void;
 }
 
 /** Un gasto: concepto, fecha y hora, forma de dinero y monto (en rojo). */
-export function GastoItem({ gasto, onPress }: GastoItemProps) {
+export function GastoItem({ gasto, autor, onPress }: GastoItemProps) {
   const moneda = monedaDeForma(gasto.forma);
   return (
     <FilaPulsable
@@ -27,6 +31,7 @@ export function GastoItem({ gasto, onPress }: GastoItemProps) {
             {gasto.concepto ?? 'Gasto'}
           </Text>
           <Text style={styles.fecha}>{formatFechaHora(gasto.fecha)}</Text>
+          {autor ? <AutorChip autor={autor} /> : null}
         </View>
         <View style={styles.derecha}>
           <Text style={styles.monto}>-{formatMonto(gasto.monto, moneda)}</Text>
