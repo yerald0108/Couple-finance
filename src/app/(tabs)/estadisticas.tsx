@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { EmptyState } from '../../components/common/EmptyState';
 import { EsqueletoEstadisticas } from '../../components/esqueletos/Esqueletos';
@@ -21,6 +22,7 @@ import { useSyncStore } from '../../store/useSyncStore';
 import { colors, fontSizes, fonts, formaColors } from '../../theme';
 import { colorDeSector, formaIconos, iconoDeSector } from '../../theme/iconos';
 import { FORMA_LABEL } from '../../utils/constants';
+import { claveDeDesplazamiento, claveMes } from '../../utils/cierreMes';
 import { mensajeError } from '../../utils/errors';
 import { formatFechaHora, type Periodo } from '../../utils/fechas';
 import { formatMonto } from '../../utils/formatters';
@@ -29,6 +31,7 @@ const NOTA_USD = 'La dona muestra solo los gastos en pesos; el USD va aparte.';
 
 export default function EstadisticasScreen() {
   const db = useSQLiteContext();
+  const router = useRouter();
 
   const [periodo, setPeriodo] = useState<Periodo>('mes');
   /** 0 = período actual, -1 = el anterior, etc. Se guarda así (y no como fecha) para que "hoy" siempre sea hoy. */
@@ -152,6 +155,13 @@ export default function EstadisticasScreen() {
   const hayIngresos = (analisis?.resumen.ingresos.cup ?? 0) > 0 || (analisis?.resumen.ingresos.usd ?? 0) > 0;
   const topUsd = analisis?.detalle.topGastoUsd ?? null;
 
+  // Un mes que ya terminó tiene su cierre. Solo se ofrece cuando los datos mostrados son de ESE mes (no de otro período).
+  const claveCierre =
+    periodo === 'mes' && desplazamiento < 0 && datos && datos.rango.periodo === 'mes'
+      ? claveMes(datos.rango.inicio)
+      : null;
+  const ofrecerCierre = claveCierre !== null && claveCierre === claveDeDesplazamiento(desplazamiento, new Date());
+
   return (
     <Screen title="Estadísticas" subtitle="Cuánto entra, cuánto gastas y en qué">
       <SelectorPeriodo
@@ -162,6 +172,15 @@ export default function EstadisticasScreen() {
         onSiguiente={() => setDesplazamiento((d) => Math.min(0, d + 1))}
         puedeSiguiente={desplazamiento < 0}
       />
+
+      {ofrecerCierre && claveCierre ? (
+        <Button
+          title={`Ver el cierre de ${datos?.rango.etiqueta ?? 'este mes'}`}
+          variant="secondary"
+          icon="calendar-outline"
+          onPress={() => router.push({ pathname: '/cierre-mes', params: { mes: claveCierre } })}
+        />
+      ) : null}
 
       {error ? (
         <Card>

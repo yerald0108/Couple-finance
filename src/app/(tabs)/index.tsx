@@ -8,11 +8,13 @@ import { EmptyState } from '../../components/common/EmptyState';
 import { Screen } from '../../components/common/Screen';
 import { SectionTitle } from '../../components/common/SectionTitle';
 import { CampanaNotificaciones } from '../../components/inicio/CampanaNotificaciones';
+import { CierrePendienteCard } from '../../components/inicio/CierrePendienteCard';
 import { ResumenInicioCard } from '../../components/inicio/ResumenInicioCard';
 import { SectorSaldoRow } from '../../components/inicio/SectorSaldoRow';
 import { SectorTile } from '../../components/inicio/SectorTile';
 import { EsqueletoInicio } from '../../components/esqueletos/Esqueletos';
 import { useEsqueleto } from '../../hooks/useEsqueleto';
+import { useCierreStore } from '../../store/useCierreStore';
 import { useCuentasStore } from '../../store/useCuentasStore';
 import { useSaldosSectoresStore } from '../../store/useSaldosSectoresStore';
 import { useSectoresStore } from '../../store/useSectoresStore';
@@ -43,6 +45,12 @@ export default function InicioScreen() {
   const saldosError = useSaldosSectoresStore((s) => s.error);
   const cargarSaldos = useSaldosSectoresStore((s) => s.cargar);
 
+  // El cierre del mes que acaba de terminar (si todavía no se vio en este teléfono).
+  const cierrePendiente = useCierreStore((s) => s.pendiente);
+  const cierreCargado = useCierreStore((s) => s.cargado);
+  const cargarCierre = useCierreStore((s) => s.cargar);
+  const marcarCierreVisto = useCierreStore((s) => s.marcarVisto);
+
   // Sube cuando llegaron cambios de la pareja: se vuelve a leer la base local.
   const datosVersion = useSyncStore((s) => s.datosVersion);
 
@@ -52,7 +60,8 @@ export default function InicioScreen() {
       void cargarCuentas(db);
       void cargarSectores(db);
       void cargarSaldos(db);
-    }, [db, datosVersion, cargarCuentas, cargarSectores, cargarSaldos]),
+      void cargarCierre(db);
+    }, [db, datosVersion, cargarCuentas, cargarSectores, cargarSaldos, cargarCierre]),
   );
 
   // Tirar de la pantalla hacia abajo: sincroniza con tu pareja (si está conectada) y vuelve a leer todo.
@@ -69,16 +78,17 @@ export default function InicioScreen() {
         aviso = despues.error ?? 'Inténtalo de nuevo en un momento.';
       }
     }
-    await Promise.all([cargarCuentas(db), cargarSectores(db), cargarSaldos(db)]);
+    await Promise.all([cargarCuentas(db), cargarSectores(db), cargarSaldos(db), cargarCierre(db)]);
     if (aviso) Alert.alert('No se pudo sincronizar', aviso);
-  }, [db, cargarCuentas, cargarSectores, cargarSaldos]);
+  }, [db, cargarCuentas, cargarSectores, cargarSaldos, cargarCierre]);
 
   const resumen = useMemo(() => resumenSaldos(cuentas), [cuentas]);
   const sinDinero = resumen.efectivo === 0 && resumen.transferencia === 0 && resumen.usd === 0;
   const saldoPorSector = useMemo(() => new Map(saldos.map((s) => [s.sector_id, s])), [saldos]);
 
   const error = cuentasError ?? sectoresError ?? saldosError;
-  const cargando = cuentasCargando || sectoresCargando || saldosCargando;
+  // El aviso del cierre se lee con lo demás (solo la primera vez) para que Inicio no cambie de altura al aparecer.
+  const cargando = cuentasCargando || sectoresCargando || saldosCargando || !cierreCargado;
   const carga = useEsqueleto(cargando);
 
   return (
@@ -96,6 +106,14 @@ export default function InicioScreen() {
         <EsqueletoInicio />
       ) : cargando ? null : (
         <>
+          {cierrePendiente ? (
+            <CierrePendienteCard
+              etiqueta={cierrePendiente.etiqueta}
+              onAbrir={() => router.push({ pathname: '/cierre-mes', params: { mes: cierrePendiente.clave } })}
+              onDescartar={() => void marcarCierreVisto(db, cierrePendiente.clave)}
+            />
+          ) : null}
+
           <ResumenInicioCard
             totalCup={resumen.totalCup}
             efectivo={resumen.efectivo}
