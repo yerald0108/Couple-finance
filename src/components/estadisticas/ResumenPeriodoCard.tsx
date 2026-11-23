@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
 import type { ResumenPeriodo } from '../../utils/analisis';
 import { formatMonto } from '../../utils/formatters';
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     ...shadows.card,
   },
   label: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: 'rgba(255,255,255,0.8)',
   },
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   },
   columnaNombre: {
     flexShrink: 1,
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: 'rgba(255,255,255,0.85)',
   },
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFB4B4',
   },
   progresoTexto: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: 'rgba(255,255,255,0.85)',
   },
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   usdTexto: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: 'rgba(255,255,255,0.85)',
   },

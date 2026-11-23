@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   paso: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.text,
     lineHeight: 20,

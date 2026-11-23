@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     color: colors.negative,
   },
   sinGastos: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.textSecondary,
   },

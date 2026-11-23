@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
   },
   detalle: {
     flexShrink: 1,
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: colors.textSecondary,
   },
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   etiqueta: {
     width: 30,
     textAlign: 'center',
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: 10,
     color: colors.textMuted,
   },

@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import type { SaldoSector } from '../../db/queries/saldosSectores';
 import type { Sector } from '../../db/schema';
 import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   usd: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: colors.textSecondary,
   },

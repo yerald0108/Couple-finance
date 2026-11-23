@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
 import type { ComparacionPeriodo, Variacion } from '../../utils/analisis';
 import { formatMonto } from '../../utils/formatters';
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   nombre: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.textSecondary,
   },

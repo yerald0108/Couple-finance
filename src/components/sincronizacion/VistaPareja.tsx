@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   tu: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: colors.primary,
   },

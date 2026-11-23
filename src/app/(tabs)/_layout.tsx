@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router/js-tabs';
 import { colors, fontSizes, fonts, radius, shadows } from '../../theme';
 
@@ -26,7 +26,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: {
-          fontFamily: fonts.medium,
+          fontFamily: fonts.regular,
           fontSize: fontSizes.xs,
         },
         tabBarStyle: {

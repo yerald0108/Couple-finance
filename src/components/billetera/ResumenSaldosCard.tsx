@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     ...shadows.card,
   },
   label: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: 'rgba(255,255,255,0.8)',
   },
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
   },
   usdLabel: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: 'rgba(255,255,255,0.85)',
   },

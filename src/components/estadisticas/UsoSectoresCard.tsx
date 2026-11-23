@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
 import { colorDeSector, iconoDeSector } from '../../theme/iconos';
 import type { FilaUsoSector } from '../../utils/analisis';
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   monto: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.textSecondary,
   },

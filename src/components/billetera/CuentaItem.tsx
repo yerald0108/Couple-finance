@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Cuenta } from '../../db/schema';
 import { colors, fontSizes, fonts, formaColors, radius, spacing } from '../../theme';
 import { formaIconos } from '../../theme/iconos';

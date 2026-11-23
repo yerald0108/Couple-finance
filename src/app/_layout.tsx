@@ -3,13 +3,12 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SQLiteProvider } from 'expo-sqlite';
-import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-  useFonts,
-} from '@expo-google-fonts/inter';
+import { useFonts } from 'expo-font';
+// Cada peso se importa de su propia carpeta: importar del paquete raíz mete en la app las 18 fuentes de Inter
+// (unos 6 MB), aunque solo se usen tres.
+import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
+import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
+import { Inter_700Bold } from '@expo-google-fonts/inter/700Bold';
 import { SesionIniciador } from '../components/sincronizacion/SesionIniciador';
 import { SyncIniciador } from '../components/sincronizacion/SyncIniciador';
 import { DATABASE_NAME, initDatabase } from '../db/database';
@@ -30,7 +29,6 @@ function Loading() {
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
-    Inter_500Medium,
     Inter_600SemiBold,
     Inter_700Bold,
   });

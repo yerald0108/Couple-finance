@@ -45,6 +45,21 @@ const MIGRATIONS: Migration[] = [
       await db.execAsync(SCHEMA_V3);
     },
   },
+  {
+    // Rendimiento: dos índices en `movimientos`, medidos con años de datos (ver README, sección 7.7).
+    //  - (sector_id, fecha): el historial de Ahorro y los gastos de un sector salen ya ordenados por fecha, sin
+    //    ordenar todo el sector cada vez. Sustituye a `idx_movimientos_sector`, que queda cubierto (mismo prefijo).
+    //  - (created_at): las notificaciones leen los 50 más recientes sin ordenar todos los movimientos.
+    // Solo cambia cómo se buscan los datos; no se toca ningún dato ni ninguna tabla.
+    version: 4,
+    up: async (db) => {
+      await db.execAsync(`
+        CREATE INDEX IF NOT EXISTS idx_movimientos_sector_fecha ON movimientos(sector_id, fecha);
+        CREATE INDEX IF NOT EXISTS idx_movimientos_creado ON movimientos(created_at);
+        DROP INDEX IF EXISTS idx_movimientos_sector;
+      `);
+    },
+  },
 ];
 
 /**

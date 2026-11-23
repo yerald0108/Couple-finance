@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   repartoMonto: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.text,
   },

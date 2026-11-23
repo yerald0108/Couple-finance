@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Sector } from '../../db/schema';
 import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
 import { colorDeSector, iconoDeSector } from '../../theme/iconos';

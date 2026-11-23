@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
 import type { IconName } from '../../theme/iconos';
 import { formatMonto } from '../../utils/formatters';
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   centroEtiqueta: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: colors.textSecondary,
     textAlign: 'center',
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   montoUsd: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: colors.textSecondary,
   },

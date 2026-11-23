@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, fontSizes, fonts, spacing } from '../../theme';
 import type { Insight } from '../../utils/analisis';
 import { Card } from '../common/Card';
@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   },
   texto: {
     flex: 1,
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.md,
     lineHeight: 22,
     color: colors.text,

@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   aviso: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.negative,
   },

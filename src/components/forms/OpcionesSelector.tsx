@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
 import type { IconName } from '../../theme/iconos';
 
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   nota: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: colors.negative,
   },

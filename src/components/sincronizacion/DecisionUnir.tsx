@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   error: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.negative,
   },

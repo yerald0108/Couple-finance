@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useSyncStore } from '../../store/useSyncStore';
 import { textoHace } from '../../sync/sesionSync';
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   error: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.negative,
     lineHeight: 20,

@@ -1,6 +1,6 @@
 import type { ComponentProps } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
 import { Button } from './Button';
 import { Card } from './Card';

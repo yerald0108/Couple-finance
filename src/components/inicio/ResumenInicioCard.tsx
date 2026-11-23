@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     ...shadows.card,
   },
   label: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: 'rgba(255,255,255,0.8)',
   },
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   formaTitulo: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: 'rgba(255,255,255,0.8)',
   },

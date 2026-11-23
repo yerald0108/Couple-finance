@@ -6,6 +6,7 @@ import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { Divider } from '../../components/common/Divider';
 import { EmptyState } from '../../components/common/EmptyState';
+import { PantallaLista } from '../../components/common/PantallaLista';
 import { Screen } from '../../components/common/Screen';
 import { SectionTitle } from '../../components/common/SectionTitle';
 import { EsqueletoSector } from '../../components/esqueletos/Esqueletos';
@@ -153,75 +154,80 @@ export default function SectorScreen() {
   }
 
   // ---------- Ahorro ----------
+  // El historial puede llegar a 200 filas: se dibuja con una lista que solo crea las que se ven.
   if (vista.clase === 'ahorro') {
     return (
-      <Screen title={sector.nombre} subtitle="Entradas y salidas de tu cuenta de ahorro" onBack={volver}>
-        <SaldoSectorCard cup={vista.saldo.cup} porForma={vista.saldoPorForma} />
-        <Button title="Retirar de ahorro" icon="remove-circle-outline" onPress={irANuevoGasto} />
-
-        <SectionTitle title="Historial" />
-        {vista.historial.length === 0 ? (
+      <PantallaLista
+        title={sector.nombre}
+        subtitle="Entradas y salidas de tu cuenta de ahorro"
+        onBack={volver}
+        encabezado={
+          <>
+            <SaldoSectorCard cup={vista.saldo.cup} porForma={vista.saldoPorForma} />
+            <Button title="Retirar de ahorro" icon="remove-circle-outline" onPress={irANuevoGasto} />
+            <SectionTitle title="Historial" />
+          </>
+        }
+        data={vista.historial}
+        keyExtractor={(item) => `${item.clase}-${item.id}`}
+        renderItem={(item) => (
+          <AhorroItem
+            item={item}
+            autor={autorDe(item.registrado_por, yoId, miembros)}
+            onPress={item.clase === 'salida' ? () => editarGasto(item.id) : undefined}
+          />
+        )}
+        vacio={
           <EmptyState
             icon="wallet-outline"
             title="Sin movimientos en ahorro"
             message="Cuando repartas un ingreso hacia Ahorro, o retires dinero, lo verás aquí."
           />
-        ) : (
+        }
+        pie={
           <>
-            <Card style={styles.listCard}>
-              {vista.historial.map((item, i) => (
-                <Fragment key={`${item.clase}-${item.id}`}>
-                  {i > 0 ? <Divider /> : null}
-                  <AhorroItem
-                    item={item}
-                    autor={autorDe(item.registrado_por, yoId, miembros)}
-                    onPress={item.clase === 'salida' ? () => editarGasto(item.id) : undefined}
-                  />
-                </Fragment>
-              ))}
-            </Card>
             <Text style={styles.nota}>
               Toca una salida para editarla o eliminarla. Las entradas se editan desde el ingreso
               que las generó (sector Ingresos).
             </Text>
+            {vista.hayMas ? (
+              <Text style={styles.nota}>Se muestran los últimos {vista.historial.length} movimientos.</Text>
+            ) : null}
           </>
-        )}
-        {vista.hayMas ? (
-          <Text style={styles.nota}>Se muestran los últimos {vista.historial.length} movimientos.</Text>
-        ) : null}
-      </Screen>
+        }
+      />
     );
   }
 
   // ---------- Gastos fijos, Gustos y sectores personalizados ----------
+  // Los gastos del mes pueden ser muchos: también se dibujan con una lista que solo crea las filas visibles.
   return (
-    <Screen title={sector.nombre} subtitle={`Gastos de ${vista.mes}`} onBack={volver}>
-      <SaldoSectorCard cup={vista.saldo.cup} porForma={vista.saldoPorForma} />
-      <Button title="Añadir gasto" icon="add" onPress={irANuevoGasto} />
-
-      {totalesGastos ? <TotalesFormaCard titulo="Gastado este mes por forma" totales={totalesGastos} /> : null}
-
-      <SectionTitle title="Gastos del mes" />
-      {vista.gastos.length === 0 ? (
+    <PantallaLista
+      title={sector.nombre}
+      subtitle={`Gastos de ${vista.mes}`}
+      onBack={volver}
+      encabezado={
+        <>
+          <SaldoSectorCard cup={vista.saldo.cup} porForma={vista.saldoPorForma} />
+          <Button title="Añadir gasto" icon="add" onPress={irANuevoGasto} />
+          {totalesGastos ? <TotalesFormaCard titulo="Gastado este mes por forma" totales={totalesGastos} /> : null}
+          <SectionTitle title="Gastos del mes" />
+        </>
+      }
+      data={vista.gastos}
+      keyExtractor={(gasto) => gasto.id}
+      renderItem={(gasto) => (
+        <GastoItem gasto={gasto} autor={autorDe(gasto.registrado_por, yoId, miembros)} onPress={() => editarGasto(gasto.id)} />
+      )}
+      vacio={
         <EmptyState
           icon="receipt-outline"
           title="Aún no hay gastos este mes"
           message="Toca «Añadir gasto» para registrar el primero."
         />
-      ) : (
-        <>
-          <Card style={styles.listCard}>
-            {vista.gastos.map((gasto, i) => (
-              <Fragment key={gasto.id}>
-                {i > 0 ? <Divider /> : null}
-                <GastoItem gasto={gasto} autor={autorDe(gasto.registrado_por, yoId, miembros)} onPress={() => editarGasto(gasto.id)} />
-              </Fragment>
-            ))}
-          </Card>
-          <Text style={styles.nota}>Toca un gasto para editarlo o eliminarlo.</Text>
-        </>
-      )}
-    </Screen>
+      }
+      pie={<Text style={styles.nota}>Toca un gasto para editarlo o eliminarlo.</Text>}
+    />
   );
 }
 

@@ -2,21 +2,18 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   Dimensions,
   Keyboard,
-  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  Text,
   TextInput,
-  View,
   type ScrollViewInstance,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { colors, spacing } from '../../theme';
 import { desplazamientoParaVer, solapeConTeclado } from '../../utils/teclado';
 import { AlEnfocarContext } from './AlEnfocarContext';
+import { EncabezadoPantalla } from './EncabezadoPantalla';
 
 /** Aire que se deja entre el campo enfocado y el teclado. */
 const MARGEN_CAMPO = 24;
@@ -137,30 +134,7 @@ export function Screen({ title, subtitle, onBack, derecha, onRefresh, children }
             ) : undefined
           }
         >
-          <View style={styles.header}>
-            {onBack ? (
-              <Pressable
-                onPress={onBack}
-                hitSlop={10}
-                accessibilityRole="button"
-                accessibilityLabel="Volver"
-                style={styles.back}
-              >
-                <Ionicons name="chevron-back" size={24} color={colors.text} />
-              </Pressable>
-            ) : null}
-            <View style={styles.titles}>
-              <Text style={styles.title} numberOfLines={1}>
-                {title}
-              </Text>
-              {subtitle ? (
-                <Text style={styles.subtitle} numberOfLines={2}>
-                  {subtitle}
-                </Text>
-              ) : null}
-            </View>
-            {derecha ? <View style={styles.derecha}>{derecha}</View> : null}
-          </View>
+          <EncabezadoPantalla title={title} subtitle={subtitle} onBack={onBack} derecha={derecha} />
           {children}
         </ScrollView>
       </AlEnfocarContext.Provider>
@@ -177,36 +151,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.lg,
     gap: spacing.lg,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  back: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  titles: {
-    flex: 1,
-    gap: spacing.xs,
-  },
-  derecha: {
-    alignSelf: 'flex-start',
-  },
-  title: {
-    fontFamily: fonts.bold,
-    fontSize: fontSizes.xxl,
-    color: colors.text,
-  },
-  subtitle: {
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.md,
-    color: colors.textSecondary,
   },
 });

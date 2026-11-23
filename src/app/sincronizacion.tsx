@@ -40,7 +40,7 @@ export default function SincronizacionScreen() {
 
 const styles = StyleSheet.create({
   aviso: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.warning,
   },

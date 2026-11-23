@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useMemo } from 'react';
+import { Fragment, useCallback, useMemo, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -14,6 +14,7 @@ import { SectorSaldoRow } from '../../components/inicio/SectorSaldoRow';
 import { SectorTile } from '../../components/inicio/SectorTile';
 import { EsqueletoInicio } from '../../components/esqueletos/Esqueletos';
 import { useEsqueleto } from '../../hooks/useEsqueleto';
+import { crearLectorInicio } from '../../store/lectorInicio';
 import { useCierreStore } from '../../store/useCierreStore';
 import { useCuentasStore } from '../../store/useCuentasStore';
 import { useSaldosSectoresStore } from '../../store/useSaldosSectoresStore';
@@ -54,14 +55,13 @@ export default function InicioScreen() {
   // Sube cuando llegaron cambios de la pareja: se vuelve a leer la base local.
   const datosVersion = useSyncStore((s) => s.datosVersion);
 
-  // Cada vez que se vuelve a Inicio (por ejemplo tras guardar un gasto) se actualiza todo.
+  // Al volver a Inicio se leen los datos, salvo que nada haya cambiado desde la última lectura (ver `lectorInicio`).
+  // Lo que se guarda en este teléfono ya actualiza los saldos al instante; lo que llega de la pareja sube `datosVersion`.
+  const [lector] = useState(crearLectorInicio);
   useFocusEffect(
     useCallback(() => {
-      void cargarCuentas(db);
-      void cargarSectores(db);
-      void cargarSaldos(db);
-      void cargarCierre(db);
-    }, [db, datosVersion, cargarCuentas, cargarSectores, cargarSaldos, cargarCierre]),
+      void lector.leer(db, datosVersion);
+    }, [db, datosVersion, lector]),
   );
 
   // Tirar de la pantalla hacia abajo: sincroniza con tu pareja (si está conectada) y vuelve a leer todo.

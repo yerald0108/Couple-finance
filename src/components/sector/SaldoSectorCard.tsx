@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
 import { formaIconos } from '../../theme/iconos';
 import type { FormaDinero } from '../../types';
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     ...shadows.card,
   },
   label: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: 'rgba(255,255,255,0.8)',
   },
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   },
   formaNombre: {
     flexShrink: 1,
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: 'rgba(255,255,255,0.85)',
   },

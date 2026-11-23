@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
 import type { ResumenPeriodo } from '../../utils/analisis';
 import type { TitularCierre } from '../../utils/cierreMes';
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     ...shadows.card,
   },
   label: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: 'rgba(255,255,255,0.8)',
   },
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   nombre: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.md,
     color: 'rgba(255,255,255,0.9)',
   },
