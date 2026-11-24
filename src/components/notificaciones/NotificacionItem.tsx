@@ -1,5 +1,4 @@
 import { StyleSheet, Text, View } from 'react-native';
-import type { Notificacion } from '../../db/queries/notificaciones';
 import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
 import {
   detalleNotificacion,
@@ -9,19 +8,25 @@ import {
   montoConSigno,
   textoReciente,
   type Autor,
+  type DatosNotificacion,
 } from '../../utils/notificaciones';
 import { FilaPulsable } from '../common/FilaPulsable';
 
 interface NotificacionItemProps {
-  notificacion: Notificacion;
+  /** Un movimiento (una notificación o una fila del historial): lo que se necesita para dibujarlo. */
+  notificacion: DatosNotificacion & { created_at: string };
   autor: Autor;
   /** Se marca con un punto y un fondo suave (llegó desde la última vez que miraste). */
   nuevo: boolean;
   onPress: () => void;
+  /** Texto de "cuándo" ya armado. Si no se pasa, se muestra "hace 5 min" / "12 nov, 5:51 PM" según `created_at`. */
+  cuando?: string;
+  /** true = sin relleno a los lados, para filas que ya van dentro de una lista con su propio margen (`PantallaLista`). */
+  sinRelleno?: boolean;
 }
 
-/** Una notificación: quién lo registró, qué fue, cuándo y el monto. Al tocarla se abre el detalle. */
-export function NotificacionItem({ notificacion, autor, nuevo, onPress }: NotificacionItemProps) {
+/** Una notificación: quién lo registró, qué fue, cuándo y el monto. Al tocarla se abre el detalle. También es la fila del historial. */
+export function NotificacionItem({ notificacion, autor, nuevo, onPress, cuando, sinRelleno }: NotificacionItemProps) {
   const frase = fraseNotificacion(notificacion, autor);
   const detalle = detalleNotificacion(notificacion);
   const monto = montoConSigno(notificacion);
@@ -32,7 +37,7 @@ export function NotificacionItem({ notificacion, autor, nuevo, onPress }: Notifi
       etiqueta={`${nuevo ? 'Nueva. ' : ''}${frase}. ${detalle}. ${monto}`}
       pista="Toca para ver el detalle"
     >
-      <View style={[styles.fila, nuevo && styles.nueva]}>
+      <View style={[styles.fila, sinRelleno && styles.sinRelleno, nuevo && styles.nueva]}>
         <View style={[styles.avatar, autor.esYo && styles.avatarYo]}>
           <Text style={[styles.inicial, autor.esYo && styles.inicialYo]}>{inicialDe(autor)}</Text>
         </View>
@@ -43,7 +48,7 @@ export function NotificacionItem({ notificacion, autor, nuevo, onPress }: Notifi
           <Text style={styles.detalle} numberOfLines={2}>
             {detalle}
           </Text>
-          <Text style={styles.hora}>{textoReciente(notificacion.created_at)}</Text>
+          <Text style={styles.hora}>{cuando ?? textoReciente(notificacion.created_at)}</Text>
         </View>
         <View style={styles.derecha}>
           <Text style={[styles.monto, { color: esIngreso(notificacion) ? colors.positive : colors.negative }]}>
@@ -63,6 +68,9 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
+  },
+  sinRelleno: {
+    paddingHorizontal: 0,
   },
   nueva: {
     backgroundColor: colors.primarySoft,

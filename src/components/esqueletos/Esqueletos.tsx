@@ -226,6 +226,34 @@ export function EsqueletoNotificaciones() {
   );
 }
 
+/** Historial: filtros (tipo y mes) y la lista de movimientos. */
+export function EsqueletoHistorial() {
+  return (
+    <SkeletonGroup>
+      <View style={styles.filtros}>
+        <Skeleton height={54} radio={radius.pill} />
+        <Skeleton height={44} radio={radius.pill} />
+      </View>
+      <Card style={styles.notificaciones}>
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <Fragment key={i}>
+            {i > 0 ? <Divider /> : null}
+            <View style={styles.filaNotificacion}>
+              <Skeleton width={40} height={40} radio={radius.pill} />
+              <View style={styles.info}>
+                <Skeleton width="72%" height={16} />
+                <Skeleton width="52%" height={14} />
+                <Skeleton width="26%" height={12} />
+              </View>
+              <Skeleton width={64} height={16} />
+            </View>
+          </Fragment>
+        ))}
+      </Card>
+    </SkeletonGroup>
+  );
+}
+
 const styles = StyleSheet.create({
   tarjetaVioleta: {
     backgroundColor: colors.primary,
@@ -316,6 +344,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.lg,
     paddingVertical: spacing.lg,
+  },
+  filtros: {
+    gap: spacing.md,
   },
   notificaciones: {
     padding: 0,

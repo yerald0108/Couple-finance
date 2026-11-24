@@ -19,6 +19,8 @@ interface PantallaListaProps<T> {
   vacio?: ReactNode;
   /** Lo que va después de la lista; solo se muestra si hay filas. */
   pie?: ReactNode;
+  /** Se llama al acercarse al final de la lista (para leer más filas, por ejemplo). Puede llamarse varias veces seguidas: quien la pasa debe ignorar las repetidas. */
+  alLlegarAlFinal?: () => void;
 }
 
 /**
@@ -39,6 +41,7 @@ export function PantallaLista<T>({
   renderItem,
   vacio,
   pie,
+  alLlegarAlFinal,
 }: PantallaListaProps<T>) {
   const total = data.length;
 
@@ -65,6 +68,8 @@ export function PantallaLista<T>({
         }
         ListEmptyComponent={vacio ? <View style={styles.bloque}>{vacio}</View> : undefined}
         ListFooterComponent={total > 0 && pie ? <View style={[styles.bloque, styles.despues]}>{pie}</View> : undefined}
+        onEndReached={alLlegarAlFinal}
+        onEndReachedThreshold={0.5}
         contentContainerStyle={styles.contenido}
         showsVerticalScrollIndicator={false}
         // Se dibujan pocas filas al abrir y unas pantallas de margen al desplazarse (el valor por defecto, 21, es mucho).

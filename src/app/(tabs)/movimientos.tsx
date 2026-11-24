@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { Screen } from '../../components/common/Screen';
+import { BotonHistorial } from '../../components/movimientos/BotonHistorial';
 import { FormularioIngreso } from '../../components/movimientos/FormularioIngreso';
 import type { DatosIngreso } from '../../db/queries/ingresos';
 import { useCuentasStore } from '../../store/useCuentasStore';
@@ -40,7 +41,7 @@ export default function MovimientosScreen() {
   }
 
   return (
-    <Screen title="Movimientos" subtitle="Registra un ingreso y repártelo">
+    <Screen title="Movimientos" subtitle="Registra un ingreso y repártelo" derecha={<BotonHistorial />}>
       <FormularioIngreso textoBoton="Guardar ingreso" limpiarAlGuardar onGuardar={guardar} />
     </Screen>
   );
