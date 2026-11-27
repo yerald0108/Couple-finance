@@ -1,6 +1,6 @@
 /** Iconos y colores para mostrar formas de dinero y sectores. */
 import type { ComponentProps } from 'react';
-import type { Ionicons } from '@expo/vector-icons';
+import type Ionicons from '@expo/vector-icons/Ionicons';
 import type { Sector } from '../db/schema';
 import type { FormaDinero, TipoSector } from '../types';
 import { sectorColors } from './index';

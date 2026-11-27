@@ -95,6 +95,8 @@ export interface HistorialAhorroItem {
   forma: FormaDinero;
   /** Origen del ingreso (entradas) o motivo (salidas). */
   detalle: string | null;
+  /** Cuenta que registró el movimiento (null si es de antes de conectar a la pareja). */
+  registrado_por: string | null;
 }
 
 /** Historial de entradas y salidas de Ahorro (más nuevos primero). Devuelve hasta `limite` y avisa si hay más. */
@@ -105,13 +107,13 @@ export async function getHistorialAhorro(
 ): Promise<{ items: HistorialAhorroItem[]; hayMas: boolean }> {
   const filas = await db.getAllAsync<HistorialAhorroItem>(
     `SELECT r.id AS id, 'entrada' AS clase, m.fecha AS fecha, r.monto AS monto,
-            m.forma AS forma, m.origen AS detalle
+            m.forma AS forma, m.origen AS detalle, m.registrado_por AS registrado_por
        FROM repartos r
        JOIN movimientos m ON m.id = r.movimiento_id
       WHERE r.sector_id = ? AND r.deleted_at IS NULL AND m.deleted_at IS NULL
      UNION ALL
      SELECT m.id AS id, 'salida' AS clase, m.fecha AS fecha, m.monto AS monto,
-            m.forma AS forma, m.motivo_ahorro AS detalle
+            m.forma AS forma, m.motivo_ahorro AS detalle, m.registrado_por AS registrado_por
        FROM movimientos m
       WHERE m.sector_id = ? AND m.es_salida_ahorro = 1 AND m.deleted_at IS NULL
       ORDER BY fecha DESC

@@ -1,20 +1,28 @@
 import { StyleSheet, Text, View } from 'react-native';
 import type { HistorialAhorroItem } from '../../db/queries/listados';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { monedaDeForma, origenLabel } from '../../utils/etiquetas';
 import { formatFechaHora } from '../../utils/fechas';
 import { formatMonto } from '../../utils/formatters';
+import type { Autor } from '../../utils/notificaciones';
+import { AutorChip } from '../common/AutorChip';
 import { FilaPulsable } from '../common/FilaPulsable';
 import { FormaBadge } from '../common/FormaBadge';
 
 interface AhorroItemProps {
   item: HistorialAhorroItem;
+  /** Quién registró el movimiento (si se sabe, se muestra como etiqueta). */
+  autor?: Autor;
   /** Si se pasa, la fila se puede tocar (se usa en las salidas, que se editan o eliminan). */
   onPress?: () => void;
 }
 
 /** Una fila del historial de ahorro: entrada (verde, con su origen) o salida (roja, con su motivo). */
-export function AhorroItem({ item, onPress }: AhorroItemProps) {
+export function AhorroItem({ item, autor, onPress }: AhorroItemProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const entrada = item.clase === 'entrada';
   const moneda = monedaDeForma(item.forma);
   const titulo = entrada ? `Entrada · ${origenLabel(item.detalle)}` : `Salida · ${item.detalle ?? ''}`;
@@ -27,6 +35,7 @@ export function AhorroItem({ item, onPress }: AhorroItemProps) {
             {titulo}
           </Text>
           <Text style={styles.fecha}>{formatFechaHora(item.fecha)}</Text>
+          {autor ? <AutorChip autor={autor} /> : null}
         </View>
         <View style={styles.derecha}>
           <Text style={[styles.monto, { color: entrada ? colors.positive : colors.negative }]}>
@@ -40,7 +49,7 @@ export function AhorroItem({ item, onPress }: AhorroItemProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   fila: {
     flexDirection: 'row',
     alignItems: 'flex-start',

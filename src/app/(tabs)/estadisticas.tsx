@@ -1,9 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { StyleSheet, Text } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
+import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { EmptyState } from '../../components/common/EmptyState';
+import { EsqueletoEstadisticas } from '../../components/esqueletos/Esqueletos';
 import { Screen } from '../../components/common/Screen';
 import { SectionTitle } from '../../components/common/SectionTitle';
 import { AnalisisCard } from '../../components/estadisticas/AnalisisCard';
@@ -15,9 +17,14 @@ import { ResumenPeriodoCard } from '../../components/estadisticas/ResumenPeriodo
 import { SelectorPeriodo } from '../../components/estadisticas/SelectorPeriodo';
 import { UsoSectoresCard } from '../../components/estadisticas/UsoSectoresCard';
 import { cargarEstadisticas, type DatosEstadisticas } from '../../db/queries/estadisticas';
-import { colors, fontSizes, fonts, formaColors } from '../../theme';
+import { useEsqueleto } from '../../hooks/useEsqueleto';
+import { useSyncStore } from '../../store/useSyncStore';
+import { fontSizes, fonts, formaColors } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { colorDeSector, formaIconos, iconoDeSector } from '../../theme/iconos';
 import { FORMA_LABEL } from '../../utils/constants';
+import { claveDeDesplazamiento, claveMes } from '../../utils/cierreMes';
 import { mensajeError } from '../../utils/errors';
 import { formatFechaHora, type Periodo } from '../../utils/fechas';
 import { formatMonto } from '../../utils/formatters';
@@ -25,7 +32,9 @@ import { formatMonto } from '../../utils/formatters';
 const NOTA_USD = 'La dona muestra solo los gastos en pesos; el USD va aparte.';
 
 export default function EstadisticasScreen() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
+  const router = useRouter();
 
   const [periodo, setPeriodo] = useState<Periodo>('mes');
   /** 0 = período actual, -1 = el anterior, etc. Se guarda así (y no como fecha) para que "hoy" siempre sea hoy. */
@@ -34,16 +43,26 @@ export default function EstadisticasScreen() {
   const [datos, setDatos] = useState<DatosEstadisticas | null>(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const carga = useEsqueleto(cargando);
+  /** Período (con su desplazamiento) del que son los `datos` mostrados. */
+  const claveCargada = useRef<string | null>(null);
+
+  // Sube cuando llegaron cambios de la pareja: se recalcula con lo nuevo.
+  const datosVersion = useSyncStore((s) => s.datosVersion);
 
   // Se recalcula al entrar a la pestaña y cada vez que cambia el período elegido.
   useFocusEffect(
     useCallback(() => {
       let activo = true;
+      const clave = `${periodo}:${desplazamiento}`;
+      // Al cambiar de período se vuelve a mostrar la carga (si tarda); un cambio de la pareja recalcula en silencio.
+      if (claveCargada.current !== clave) setCargando(true);
       (async () => {
         try {
           const resultado = await cargarEstadisticas(db, periodo, desplazamiento);
           if (!activo) return;
           setDatos(resultado);
+          claveCargada.current = clave;
           setError(null);
         } catch (e) {
           if (activo) setError(mensajeError(e));
@@ -54,7 +73,7 @@ export default function EstadisticasScreen() {
       return () => {
         activo = false;
       };
-    }, [db, periodo, desplazamiento]),
+    }, [db, periodo, desplazamiento, datosVersion]),
   );
 
   function cambiarPeriodo(nuevo: Periodo) {
@@ -139,6 +158,13 @@ export default function EstadisticasScreen() {
   const hayIngresos = (analisis?.resumen.ingresos.cup ?? 0) > 0 || (analisis?.resumen.ingresos.usd ?? 0) > 0;
   const topUsd = analisis?.detalle.topGastoUsd ?? null;
 
+  // Un mes que ya terminó tiene su cierre. Solo se ofrece cuando los datos mostrados son de ESE mes (no de otro período).
+  const claveCierre =
+    periodo === 'mes' && desplazamiento < 0 && datos && datos.rango.periodo === 'mes'
+      ? claveMes(datos.rango.inicio)
+      : null;
+  const ofrecerCierre = claveCierre !== null && claveCierre === claveDeDesplazamiento(desplazamiento, new Date());
+
   return (
     <Screen title="Estadísticas" subtitle="Cuánto entra, cuánto gastas y en qué">
       <SelectorPeriodo
@@ -150,13 +176,22 @@ export default function EstadisticasScreen() {
         puedeSiguiente={desplazamiento < 0}
       />
 
+      {ofrecerCierre && claveCierre ? (
+        <Button
+          title={`Ver el cierre de ${datos?.rango.etiqueta ?? 'este mes'}`}
+          variant="secondary"
+          icon="calendar-outline"
+          onPress={() => router.push({ pathname: '/cierre-mes', params: { mes: claveCierre } })}
+        />
+      ) : null}
+
       {error ? (
         <Card>
           <Text style={styles.error}>No se pudieron cargar los datos: {error}</Text>
         </Card>
-      ) : cargando || !stats || !analisis || !datos ? (
-        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
-      ) : !hayGastos && !hayIngresos ? (
+      ) : carga === 'esqueleto' ? (
+        <EsqueletoEstadisticas />
+      ) : !stats || !analisis || !datos ? null : !hayGastos && !hayIngresos ? (
         <EmptyState
           icon="receipt-outline"
           title="Sin movimientos en este período"
@@ -228,17 +263,14 @@ export default function EstadisticasScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  loader: {
-    marginTop: 40,
-  },
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   error: {
     fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.negative,
   },
   sinGastos: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.textSecondary,
   },

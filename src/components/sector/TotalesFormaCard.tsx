@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, fontSizes, fonts, formaColors, radius, spacing } from '../../theme';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { fontSizes, fonts, formaColors, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { formaIconos } from '../../theme/iconos';
 import type { FormaDinero } from '../../types';
 import { FORMA_LABEL } from '../../utils/constants';
@@ -17,6 +19,7 @@ const FORMAS: FormaDinero[] = ['efectivo', 'transferencia', 'usd'];
 
 /** Totales de un período separados por forma de dinero (efectivo, transferencia y USD). */
 export function TotalesFormaCard({ titulo, totales }: TotalesFormaCardProps) {
+  const styles = useEstilos(crearEstilos);
   return (
     <Card style={styles.card}>
       <Text style={styles.titulo}>{titulo}</Text>
@@ -42,7 +45,7 @@ export function TotalesFormaCard({ titulo, totales }: TotalesFormaCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.md,
   },
@@ -68,7 +71,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   forma: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: colors.textSecondary,
   },

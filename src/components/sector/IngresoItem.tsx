@@ -1,20 +1,27 @@
 import { StyleSheet, Text, View } from 'react-native';
 import type { IngresoMes } from '../../db/queries/listados';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { monedaDeForma, origenLabel } from '../../utils/etiquetas';
 import { formatFechaHora } from '../../utils/fechas';
 import { formatMonto } from '../../utils/formatters';
+import type { Autor } from '../../utils/notificaciones';
+import { AutorChip } from '../common/AutorChip';
 import { FilaPulsable } from '../common/FilaPulsable';
 import { FormaBadge } from '../common/FormaBadge';
 
 interface IngresoItemProps {
   ingreso: IngresoMes;
+  /** Quién lo registró (si se sabe, se muestra como etiqueta). */
+  autor?: Autor;
   /** Si se pasa, la fila se puede tocar (para editar o eliminar el ingreso). */
   onPress?: () => void;
 }
 
 /** Un ingreso: origen, fecha y hora, forma de dinero, monto y cómo se repartió. */
-export function IngresoItem({ ingreso, onPress }: IngresoItemProps) {
+export function IngresoItem({ ingreso, autor, onPress }: IngresoItemProps) {
+  const styles = useEstilos(crearEstilos);
   const { movimiento, repartos } = ingreso;
   const moneda = monedaDeForma(movimiento.forma);
 
@@ -28,6 +35,7 @@ export function IngresoItem({ ingreso, onPress }: IngresoItemProps) {
           <View style={styles.info}>
             <Text style={styles.titulo}>{origenLabel(movimiento.origen)}</Text>
             <Text style={styles.fecha}>{formatFechaHora(movimiento.fecha)}</Text>
+            {autor ? <AutorChip autor={autor} /> : null}
           </View>
           <View style={styles.derecha}>
             <Text style={styles.monto}>+{formatMonto(movimiento.monto, moneda)}</Text>
@@ -51,7 +59,7 @@ export function IngresoItem({ ingreso, onPress }: IngresoItemProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   item: {
     paddingVertical: spacing.md,
     gap: spacing.sm,
@@ -106,7 +114,7 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   repartoMonto: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.text,
   },

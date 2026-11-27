@@ -1,7 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Cuenta } from '../../db/schema';
-import { colors, fontSizes, fonts, formaColors, radius, spacing } from '../../theme';
+import { fontSizes, fonts, formaColors, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { formaIconos } from '../../theme/iconos';
 import { formatMonto } from '../../utils/formatters';
 
@@ -11,6 +13,7 @@ interface CuentaItemProps {
 
 /** Fila de una cuenta: icono de color, nombre, moneda y saldo. */
 export function CuentaItem({ cuenta }: CuentaItemProps) {
+  const styles = useEstilos(crearEstilos);
   const color = formaColors[cuenta.tipo];
 
   return (
@@ -27,7 +30,7 @@ export function CuentaItem({ cuenta }: CuentaItemProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',

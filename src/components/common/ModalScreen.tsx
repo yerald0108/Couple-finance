@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 
 interface ModalScreenProps {
   title: string;
@@ -13,6 +15,8 @@ interface ModalScreenProps {
 
 /** Marco de las ventanas emergentes de formulario: título, botón de cerrar y contenido que se desplaza. */
 export function ModalScreen({ title, subtitle, onClose, children }: ModalScreenProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <KeyboardAvoidingView
@@ -49,7 +53,7 @@ export function ModalScreen({ title, subtitle, onClose, children }: ModalScreenP
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,

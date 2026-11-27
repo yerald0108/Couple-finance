@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { Evolucion } from '../../utils/analisis';
 import { formatMonto } from '../../utils/formatters';
 import { Card } from '../common/Card';
@@ -16,6 +18,8 @@ const ALTO_GRAFICO = 130;
  * dibuja una línea con el promedio y, al tocar una barra, muestra su monto.
  */
 export function EvolucionChart({ evolucion }: EvolucionChartProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const [elegida, setElegida] = useState<number | null>(null);
   const { barras, maximoCup, promedioCup, indiceMaximo, tipo } = evolucion;
   const porDia = tipo === 'dia';
@@ -103,7 +107,7 @@ export function EvolucionChart({ evolucion }: EvolucionChartProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.md,
   },
@@ -120,7 +124,7 @@ const styles = StyleSheet.create({
   },
   detalle: {
     flexShrink: 1,
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: colors.textSecondary,
   },
@@ -168,7 +172,7 @@ const styles = StyleSheet.create({
   etiqueta: {
     width: 30,
     textAlign: 'center',
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: 10,
     color: colors.textMuted,
   },

@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { Moneda } from '../../types';
 import { formatMonto } from '../../utils/formatters';
 import { deCentavos } from '../../utils/montos';
@@ -15,6 +17,8 @@ interface RepartoResumenProps {
 
 /** Muestra cuánto se ha repartido y cuánto falta por repartir (se actualiza al escribir). */
 export function RepartoResumen({ montoCentavos, repartidoCentavos, moneda }: RepartoResumenProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   if (montoCentavos === null) {
     return (
       <Card style={styles.card}>
@@ -61,7 +65,7 @@ export function RepartoResumen({ montoCentavos, repartidoCentavos, moneda }: Rep
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.md,
   },
@@ -80,7 +84,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   titulo: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.textSecondary,
   },

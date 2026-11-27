@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { IconName } from '../../theme/iconos';
 import { formatMonto } from '../../utils/formatters';
 import { Card } from '../common/Card';
@@ -31,6 +33,7 @@ interface DonaCardProps {
 
 /** Dona con la parte de cada fila en los gastos en pesos, y debajo la leyenda. Tocar una porción o una fila la resalta. */
 export function DonaCard({ titulo, filas, totalCup, nota }: DonaCardProps) {
+  const styles = useEstilos(crearEstilos);
   const [seleccionadoId, setSeleccionadoId] = useState<string | null>(null);
   const elegida = filas.find((f) => f.id === seleccionadoId && f.cup > 0) ?? null;
   const hayPesos = filas.some((f) => f.cup > 0);
@@ -83,6 +86,7 @@ export function DonaCard({ titulo, filas, totalCup, nota }: DonaCardProps) {
 }
 
 function Leyenda({ fila, elegida, onPress }: { fila: FilaDona; elegida: boolean; onPress: () => void }) {
+  const styles = useEstilos(crearEstilos);
   const soloUsd = fila.cup === 0 && fila.usd > 0;
   const vacia = fila.cup === 0 && fila.usd === 0;
 
@@ -115,7 +119,7 @@ function Leyenda({ fila, elegida, onPress }: { fila: FilaDona; elegida: boolean;
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.lg,
   },
@@ -125,7 +129,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   centroEtiqueta: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: colors.textSecondary,
     textAlign: 'center',
@@ -183,7 +187,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   montoUsd: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: colors.textSecondary,
   },

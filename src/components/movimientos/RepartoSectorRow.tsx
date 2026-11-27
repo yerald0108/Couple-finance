@@ -1,7 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Sector } from '../../db/schema';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { colorDeSector, iconoDeSector } from '../../theme/iconos';
 import type { Moneda } from '../../types';
 import { MontoInput } from '../forms/MontoInput';
@@ -15,6 +17,7 @@ interface RepartoSectorRowProps {
 
 /** Una fila del reparto: el sector (icono + nombre) y cuánto dinero le toca. */
 export function RepartoSectorRow({ sector, valor, onChange, moneda }: RepartoSectorRowProps) {
+  const styles = useEstilos(crearEstilos);
   const color = colorDeSector(sector);
 
   return (
@@ -36,7 +39,7 @@ export function RepartoSectorRow({ sector, valor, onChange, moneda }: RepartoSec
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -53,7 +56,7 @@ const styles = StyleSheet.create({
   name: {
     flex: 1,
     fontFamily: fonts.semibold,
-    fontSize: fontSizes.sm,
+    fontSize: fontSizes.md,
     color: colors.text,
   },
 });

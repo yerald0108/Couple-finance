@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { IconName } from '../../theme/iconos';
 
 export interface Opcion<T extends string> {
@@ -34,13 +36,15 @@ export function OpcionesSelector<T extends string>({
   columnas = 3,
   error,
 }: OpcionesSelectorProps<T>) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   return (
     <View style={styles.wrap}>
       <Text style={styles.label}>{label}</Text>
       <View style={styles.grid}>
         {opciones.map((opcion) => {
           const elegida = opcion.value === valor;
-          const color = opcion.color ?? colors.primary;
+          const color = opcion.color ?? colors.primaryText;
           const deshabilitada = opcion.deshabilitada === true;
           return (
             <Pressable
@@ -82,7 +86,7 @@ export function OpcionesSelector<T extends string>({
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   wrap: {
     gap: spacing.sm,
   },
@@ -117,7 +121,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   nota: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
     color: colors.negative,
   },

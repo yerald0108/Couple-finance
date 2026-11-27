@@ -1,6 +1,8 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { IconName } from '../../theme/iconos';
 
 interface ButtonProps {
@@ -22,9 +24,11 @@ export function Button({
   loading = false,
   disabled = false,
 }: ButtonProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const inactive = disabled || loading;
   const textColor =
-    variant === 'primary' ? colors.surface : variant === 'danger' ? colors.negative : colors.primary;
+    variant === 'primary' ? colors.onPrimary : variant === 'danger' ? colors.negative : colors.primaryText;
 
   return (
     <Pressable
@@ -53,7 +57,7 @@ export function Button({
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   base: {
     minHeight: 56,
     borderRadius: radius.md,

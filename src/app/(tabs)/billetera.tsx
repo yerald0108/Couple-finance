@@ -1,20 +1,27 @@
 import { Fragment, useCallback, useMemo } from 'react';
-import { ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { CuentaItem } from '../../components/billetera/CuentaItem';
 import { ResumenSaldosCard } from '../../components/billetera/ResumenSaldosCard';
 import { SectorItem } from '../../components/billetera/SectorItem';
+import { SincronizacionCard } from '../../components/billetera/SincronizacionCard';
 import { Card } from '../../components/common/Card';
 import { Divider } from '../../components/common/Divider';
+import { EsqueletoBilletera } from '../../components/esqueletos/Esqueletos';
+import { useEsqueleto } from '../../hooks/useEsqueleto';
 import { Screen } from '../../components/common/Screen';
 import { SectionTitle } from '../../components/common/SectionTitle';
 import { useCuentasStore } from '../../store/useCuentasStore';
 import { useSectoresStore } from '../../store/useSectoresStore';
-import { colors, fontSizes, fonts } from '../../theme';
+import { useSyncStore } from '../../store/useSyncStore';
+import { fontSizes, fonts } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { resumenSaldos } from '../../utils/saldos';
 
 export default function BilleteraScreen() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const router = useRouter();
 
@@ -28,16 +35,21 @@ export default function BilleteraScreen() {
   const sectoresError = useSectoresStore((s) => s.error);
   const cargarSectores = useSectoresStore((s) => s.cargar);
 
+  // Sube cuando llegaron cambios de la pareja: se vuelve a leer la base local.
+  const datosVersion = useSyncStore((s) => s.datosVersion);
+
   // Cada vez que se entra a esta pantalla se leen los datos de la base local.
   useFocusEffect(
     useCallback(() => {
       void cargarCuentas(db);
       void cargarSectores(db);
-    }, [db, cargarCuentas, cargarSectores]),
+    }, [db, datosVersion, cargarCuentas, cargarSectores]),
   );
 
   const resumen = useMemo(() => resumenSaldos(cuentas), [cuentas]);
   const error = cuentasError ?? sectoresError;
+  const cargando = cuentasCargando || sectoresCargando;
+  const carga = useEsqueleto(cargando);
 
   return (
     <Screen title="Billetera" subtitle="Tus cuentas y sectores">
@@ -45,9 +57,9 @@ export default function BilleteraScreen() {
         <Card>
           <Text style={styles.error}>No se pudieron cargar los datos: {error}</Text>
         </Card>
-      ) : cuentasCargando || sectoresCargando ? (
-        <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
-      ) : (
+      ) : carga === 'esqueleto' ? (
+        <EsqueletoBilletera />
+      ) : cargando ? null : (
         <>
           <ResumenSaldosCard totalCup={resumen.totalCup} usd={resumen.usd} />
 
@@ -74,16 +86,16 @@ export default function BilleteraScreen() {
               </Fragment>
             ))}
           </Card>
+
+          <SectionTitle title="Pareja" />
+          <SincronizacionCard />
         </>
       )}
     </Screen>
   );
 }
 
-const styles = StyleSheet.create({
-  loader: {
-    marginTop: 40,
-  },
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   listCard: {
     paddingVertical: 4,
   },

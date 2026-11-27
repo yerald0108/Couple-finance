@@ -23,6 +23,3 @@ export type TipoSector =
 export type TipoMovimiento = 'ingreso' | 'gasto_fijo' | 'gusto' | 'gasto' | 'ahorro';
 
 export type OrigenIngreso = 'salario' | 'ganancia' | 'prestamo' | 'otro';
-
-/** Preparado para la Fase 7 (identificación de pareja). */
-export type Persona = 'persona_1' | 'persona_2';

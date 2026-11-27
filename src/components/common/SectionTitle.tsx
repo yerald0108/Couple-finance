@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 
 interface SectionTitleProps {
   title: string;
@@ -10,6 +12,8 @@ interface SectionTitleProps {
 }
 
 export function SectionTitle({ title, actionLabel, onActionPress }: SectionTitleProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   return (
     <View style={styles.row}>
       <Text style={styles.title}>{title}</Text>
@@ -21,7 +25,7 @@ export function SectionTitle({ title, actionLabel, onActionPress }: SectionTitle
           accessibilityLabel={actionLabel}
           style={styles.action}
         >
-          <Ionicons name="add-circle" size={20} color={colors.primary} />
+          <Ionicons name="add-circle" size={20} color={colors.primaryText} />
           <Text style={styles.actionText}>{actionLabel}</Text>
         </Pressable>
       ) : null}
@@ -29,7 +33,7 @@ export function SectionTitle({ title, actionLabel, onActionPress }: SectionTitle
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -48,6 +52,6 @@ const styles = StyleSheet.create({
   actionText: {
     fontFamily: fonts.semibold,
     fontSize: fontSizes.sm,
-    color: colors.primary,
+    color: colors.primaryText,
   },
 });

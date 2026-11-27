@@ -1,7 +1,9 @@
 import { Fragment } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { ComparacionPeriodo, Variacion } from '../../utils/analisis';
 import { formatMonto } from '../../utils/formatters';
 import type { Moneda } from '../../types';
@@ -33,6 +35,7 @@ function textoCambio(cambio: number): string {
 
 /** Cuánto cambió cada cosa respecto al período anterior (o al mismo tramo de él). */
 export function ComparacionCard({ comparacion, etiquetaAnterior, parcial }: ComparacionCardProps) {
+  const styles = useEstilos(crearEstilos);
   const todas: FilaDef[] = [
     { id: 'gastos_cup', nombre: 'Gastos en pesos', variacion: comparacion.gastosCup, moneda: 'CUP', subirEsMalo: true },
     { id: 'ingresos_cup', nombre: 'Ingresos en pesos', variacion: comparacion.ingresosCup, moneda: 'CUP', subirEsMalo: false },
@@ -61,6 +64,8 @@ export function ComparacionCard({ comparacion, etiquetaAnterior, parcial }: Comp
 }
 
 function Fila({ fila }: { fila: FilaDef }) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const { variacion, moneda, subirEsMalo } = fila;
   const { tendencia, cambio } = variacion;
 
@@ -96,7 +101,7 @@ function Fila({ fila }: { fila: FilaDef }) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.md,
   },
@@ -124,7 +129,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   nombre: {
-    fontFamily: fonts.medium,
+    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: colors.textSecondary,
   },
