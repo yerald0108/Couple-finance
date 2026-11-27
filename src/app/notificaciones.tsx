@@ -12,11 +12,14 @@ import { NotificacionItem } from '../components/notificaciones/NotificacionItem'
 import { useNotificacionesStore } from '../store/useNotificacionesStore';
 import { useSesionStore } from '../store/useSesionStore';
 import { useSyncStore } from '../store/useSyncStore';
-import { colors, fontSizes, fonts } from '../theme';
+import { fontSizes, fonts } from '../theme';
+import { useEstilos } from '../theme/useTema';
+import type { Tema } from '../theme/temas';
 import { autorDe } from '../utils/notificaciones';
 
 /** Lo último que registraron tú y tu pareja. Tocar una notificación abre el detalle de ese movimiento. */
 export default function NotificacionesScreen() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const router = useRouter();
 
@@ -91,7 +94,7 @@ export default function NotificacionesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   lista: {
     padding: 0,
     overflow: 'hidden',

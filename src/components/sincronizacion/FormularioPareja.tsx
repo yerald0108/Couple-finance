@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useSesionStore } from '../../store/useSesionStore';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import {
   CODIGO_LARGO,
   NOMBRE_PAREJA_MAX,
@@ -24,6 +26,7 @@ const OPCIONES: Opcion<Modo>[] = [
 
 /** Cuenta ya iniciada, pero sin pareja: crearla (y recibir un código) o unirse con el código de la otra persona. */
 export function FormularioPareja() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const email = useSesionStore((s) => s.usuario?.email ?? null);
   const crearPareja = useSesionStore((s) => s.crearPareja);
@@ -116,7 +119,7 @@ export function FormularioPareja() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   form: {
     gap: spacing.lg,
   },

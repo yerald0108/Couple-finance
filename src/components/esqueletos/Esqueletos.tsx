@@ -1,6 +1,8 @@
 import { Fragment, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { colors, radius, shadows, spacing } from '../../theme';
+import { radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { Card } from '../common/Card';
 import { Divider } from '../common/Divider';
 import { SectionTitle } from '../common/SectionTitle';
@@ -18,11 +20,13 @@ import { Skeleton, SkeletonGroup } from '../common/Skeleton';
 
 /** La tarjeta violeta de saldo (Inicio, Billetera, Sector, Estadísticas). */
 function TarjetaVioleta({ children }: { children: ReactNode }) {
+  const styles = useEstilos(crearEstilos);
   return <View style={styles.tarjetaVioleta}>{children}</View>;
 }
 
 /** Fila con un icono redondo, dos líneas de texto y un monto (cuentas, sectores). */
 function FilaConIcono({ icono = 40 }: { icono?: number }) {
+  const styles = useEstilos(crearEstilos);
   return (
     <View style={styles.filaIcono}>
       <Skeleton width={icono} height={icono} radio={radius.pill} />
@@ -37,6 +41,7 @@ function FilaConIcono({ icono = 40 }: { icono?: number }) {
 
 /** Fila de un movimiento (gasto, ingreso, salida de ahorro): texto a la izquierda, monto y etiqueta a la derecha. */
 function FilaMovimiento() {
+  const styles = useEstilos(crearEstilos);
   return (
     <View style={styles.filaMovimiento}>
       <View style={styles.info}>
@@ -52,6 +57,7 @@ function FilaMovimiento() {
 }
 
 function Lista({ filas, fila }: { filas: number; fila: () => ReactNode }) {
+  const styles = useEstilos(crearEstilos);
   return (
     <Card style={styles.lista}>
       {Array.from({ length: filas }, (_, i) => (
@@ -68,6 +74,7 @@ function Lista({ filas, fila }: { filas: number; fila: () => ReactNode }) {
 
 /** Inicio: tarjeta de saldo, "Disponible por sector" y botones de secciones. */
 export function EsqueletoInicio() {
+  const styles = useEstilos(crearEstilos);
   return (
     <SkeletonGroup>
       <TarjetaVioleta>
@@ -99,6 +106,7 @@ export function EsqueletoInicio() {
 
 /** Pantalla de un sector: tarjeta de saldo, botón y lista de movimientos. */
 export function EsqueletoSector() {
+  const styles = useEstilos(crearEstilos);
   return (
     <SkeletonGroup>
       <TarjetaVioleta>
@@ -118,6 +126,7 @@ export function EsqueletoSector() {
 
 /** Estadísticas (debajo del selector de período): resumen, dona y evolución. */
 export function EsqueletoEstadisticas() {
+  const styles = useEstilos(crearEstilos);
   return (
     <SkeletonGroup>
       <TarjetaVioleta>
@@ -151,6 +160,7 @@ export function EsqueletoEstadisticas() {
 
 /** Billetera: total, cuentas, sectores y la tarjeta de la pareja. */
 export function EsqueletoBilletera() {
+  const styles = useEstilos(crearEstilos);
   return (
     <SkeletonGroup>
       <TarjetaVioleta>
@@ -178,6 +188,7 @@ export function EsqueletoBilletera() {
 
 /** Detalle de un movimiento: monto grande, datos y botón. */
 export function EsqueletoDetalle() {
+  const styles = useEstilos(crearEstilos);
   return (
     <SkeletonGroup>
       <Card style={styles.heroDetalle}>
@@ -204,6 +215,7 @@ export function EsqueletoDetalle() {
 
 /** Notificaciones: avatar, frase, detalle, hora y monto. */
 export function EsqueletoNotificaciones() {
+  const styles = useEstilos(crearEstilos);
   return (
     <SkeletonGroup>
       <Card style={styles.notificaciones}>
@@ -228,6 +240,7 @@ export function EsqueletoNotificaciones() {
 
 /** Historial: filtros (tipo y mes) y la lista de movimientos. */
 export function EsqueletoHistorial() {
+  const styles = useEstilos(crearEstilos);
   return (
     <SkeletonGroup>
       <View style={styles.filtros}>
@@ -254,7 +267,7 @@ export function EsqueletoHistorial() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors, shadows }: Tema) => StyleSheet.create({
   tarjetaVioleta: {
     backgroundColor: colors.primary,
     borderRadius: radius.xl,

@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { formaIconos } from '../../theme/iconos';
 import type { FormaDinero } from '../../types';
 import { FORMA_LABEL } from '../../utils/constants';
@@ -18,6 +20,8 @@ const FORMAS: FormaDinero[] = ['efectivo', 'transferencia', 'usd'];
 
 /** Tarjeta con lo disponible en un sector: total en pesos y el detalle por efectivo, transferencia y USD. */
 export function SaldoSectorCard({ cup, porForma }: SaldoSectorCardProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const enNegativo = cup < 0 || porForma.usd < 0;
 
   return (
@@ -54,7 +58,7 @@ export function SaldoSectorCard({ cup, porForma }: SaldoSectorCardProps) {
 
       {enNegativo ? (
         <View style={styles.alerta}>
-          <Ionicons name="warning" size={16} color={colors.surface} />
+          <Ionicons name="warning" size={16} color={colors.onPrimary} />
           <Text style={styles.alertaTexto}>Este sector está en negativo.</Text>
         </View>
       ) : null}
@@ -62,7 +66,7 @@ export function SaldoSectorCard({ cup, porForma }: SaldoSectorCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors, shadows }: Tema) => StyleSheet.create({
   card: {
     backgroundColor: colors.primary,
     borderRadius: radius.xl,
@@ -78,7 +82,7 @@ const styles = StyleSheet.create({
   total: {
     fontFamily: fonts.bold,
     fontSize: 36,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   nota: {
     fontFamily: fonts.regular,
@@ -112,7 +116,7 @@ const styles = StyleSheet.create({
   formaMonto: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.sm,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   formaNegativa: {
     color: '#FFD0D0',
@@ -126,6 +130,6 @@ const styles = StyleSheet.create({
   alertaTexto: {
     fontFamily: fonts.semibold,
     fontSize: fontSizes.xs,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
 });

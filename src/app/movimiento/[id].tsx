@@ -14,7 +14,9 @@ import { getDetalleMovimiento, type DetalleMovimiento } from '../../db/queries/d
 import { useEsqueleto } from '../../hooks/useEsqueleto';
 import { useSesionStore } from '../../store/useSesionStore';
 import { useSyncStore } from '../../store/useSyncStore';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { mensajeError } from '../../utils/errors';
 import { monedaDeForma, origenLabel } from '../../utils/etiquetas';
 import { formatFechaHora } from '../../utils/fechas';
@@ -28,6 +30,7 @@ function titulo(tipo: string): string {
 }
 
 function FilaDetalle({ etiqueta, valor }: { etiqueta: string; valor: string }) {
+  const styles = useEstilos(crearEstilos);
   return (
     <View style={styles.fila}>
       <Text style={styles.etiqueta}>{etiqueta}</Text>
@@ -38,6 +41,8 @@ function FilaDetalle({ etiqueta, valor }: { etiqueta: string; valor: string }) {
 
 /** Detalle de un movimiento: monto, quién lo registró, cuándo, dónde y (si es ingreso) cómo se repartió. */
 export default function MovimientoScreen() {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const db = useSQLiteContext();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -174,7 +179,7 @@ export default function MovimientoScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   hero: {
     alignItems: 'center',
     gap: spacing.md,

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
-import { colors } from '../../theme';
+import { useTema } from '../../theme/useTema';
 
 export interface SegmentoDona {
   id: string;
@@ -33,6 +33,7 @@ export function DonaChart({
   children,
   tamano = 190,
 }: DonaChartProps) {
+  const { colors } = useTema();
   const visibles = segmentos.filter((s) => s.valor > 0);
   const total = visibles.reduce((suma, s) => suma + s.valor, 0);
 

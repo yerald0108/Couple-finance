@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { formatMonto } from '../../utils/formatters';
 
 interface ResumenSaldosCardProps {
@@ -9,6 +11,7 @@ interface ResumenSaldosCardProps {
 
 /** Tarjeta destacada: total en pesos (efectivo + transferencia) y el USD aparte. */
 export function ResumenSaldosCard({ totalCup, usd }: ResumenSaldosCardProps) {
+  const styles = useEstilos(crearEstilos);
   return (
     <View style={styles.card}>
       <Text style={styles.label}>Total en pesos</Text>
@@ -25,7 +28,7 @@ export function ResumenSaldosCard({ totalCup, usd }: ResumenSaldosCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors, shadows }: Tema) => StyleSheet.create({
   card: {
     backgroundColor: colors.primary,
     borderRadius: radius.xl,
@@ -41,7 +44,7 @@ const styles = StyleSheet.create({
   total: {
     fontFamily: fonts.bold,
     fontSize: 36,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   caption: {
     fontFamily: fonts.regular,
@@ -66,6 +69,6 @@ const styles = StyleSheet.create({
   usdValue: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.lg,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
 });

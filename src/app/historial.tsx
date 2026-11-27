@@ -13,7 +13,9 @@ import { getHistorial, type ListaHistorial, type MovimientoHistorial } from '../
 import { useEsqueleto } from '../hooks/useEsqueleto';
 import { useSesionStore } from '../store/useSesionStore';
 import { useSyncStore } from '../store/useSyncStore';
-import { colors, fontSizes, fonts } from '../theme';
+import { fontSizes, fonts } from '../theme';
+import { useEstilos } from '../theme/useTema';
+import type { Tema } from '../theme/temas';
 import { mensajeError } from '../utils/errors';
 import {
   PAGINA_HISTORIAL,
@@ -38,6 +40,7 @@ interface Lectura {
  * 50 más. Tocar un movimiento abre su detalle.
  */
 export default function HistorialScreen() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const router = useRouter();
 
@@ -161,7 +164,7 @@ export default function HistorialScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   nota: {
     fontFamily: fonts.regular,
     fontSize: fontSizes.xs,

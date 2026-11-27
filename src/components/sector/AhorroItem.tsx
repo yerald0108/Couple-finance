@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import type { HistorialAhorroItem } from '../../db/queries/listados';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { monedaDeForma, origenLabel } from '../../utils/etiquetas';
 import { formatFechaHora } from '../../utils/fechas';
 import { formatMonto } from '../../utils/formatters';
@@ -19,6 +21,8 @@ interface AhorroItemProps {
 
 /** Una fila del historial de ahorro: entrada (verde, con su origen) o salida (roja, con su motivo). */
 export function AhorroItem({ item, autor, onPress }: AhorroItemProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const entrada = item.clase === 'entrada';
   const moneda = monedaDeForma(item.forma);
   const titulo = entrada ? `Entrada · ${origenLabel(item.detalle)}` : `Salida · ${item.detalle ?? ''}`;
@@ -45,7 +49,7 @@ export function AhorroItem({ item, autor, onPress }: AhorroItemProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   fila: {
     flexDirection: 'row',
     alignItems: 'flex-start',

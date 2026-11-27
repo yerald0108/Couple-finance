@@ -1,6 +1,8 @@
 import { Fragment } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { NumerosMes } from '../../utils/cierreMes';
 import { formatMonto } from '../../utils/formatters';
 import { Card } from '../common/Card';
@@ -12,6 +14,7 @@ interface NumerosMesCardProps {
 
 /** El mes en cuatro datos sueltos: cuántos gastos, el promedio, el día de más gasto y los días sin gastar. */
 export function NumerosMesCard({ numeros }: NumerosMesCardProps) {
+  const styles = useEstilos(crearEstilos);
   const filas: { id: string; nombre: string; valor: string }[] = [
     {
       id: 'cantidad',
@@ -53,7 +56,7 @@ export function NumerosMesCard({ numeros }: NumerosMesCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.md,
   },

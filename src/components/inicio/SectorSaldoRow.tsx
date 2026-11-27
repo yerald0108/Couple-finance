@@ -2,7 +2,9 @@ import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { SaldoSector } from '../../db/queries/saldosSectores';
 import type { Sector } from '../../db/schema';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { colorDeSector, iconoDeSector } from '../../theme/iconos';
 import { formatMonto } from '../../utils/formatters';
 
@@ -15,6 +17,7 @@ interface SectorSaldoRowProps {
 
 /** Fila de "Disponible por sector": icono, nombre y lo que hay (pesos, y USD si tiene). */
 export function SectorSaldoRow({ sector, saldo, detalle }: SectorSaldoRowProps) {
+  const styles = useEstilos(crearEstilos);
   const color = colorDeSector(sector);
   const cup = saldo?.cup ?? 0;
   const usd = saldo?.usd ?? 0;
@@ -40,7 +43,7 @@ export function SectorSaldoRow({ sector, saldo, detalle }: SectorSaldoRowProps) 
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',

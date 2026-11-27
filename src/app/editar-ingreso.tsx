@@ -10,7 +10,9 @@ import { getIngreso } from '../db/queries/movimientos';
 import { useEliminarMovimiento } from '../hooks/useEliminarMovimiento';
 import { useCuentasStore } from '../store/useCuentasStore';
 import { useSectoresStore } from '../store/useSectoresStore';
-import { colors, fontSizes, fonts, spacing } from '../theme';
+import { fontSizes, fonts, spacing } from '../theme';
+import { useEstilos } from '../theme/useTema';
+import type { Tema } from '../theme/temas';
 import { mensajeError } from '../utils/errors';
 import { formatFechaHora } from '../utils/fechas';
 
@@ -19,6 +21,7 @@ import { formatFechaHora } from '../utils/fechas';
  * La fecha y la hora del ingreso no cambian; se puede cambiar el monto, la forma, el origen y el reparto.
  */
 export default function EditarIngresoScreen() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const router = useRouter();
   const { movimientoId } = useLocalSearchParams<{ movimientoId: string }>();
@@ -118,7 +121,7 @@ export default function EditarIngresoScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   texto: {
     fontFamily: fonts.regular,
     fontSize: fontSizes.sm,

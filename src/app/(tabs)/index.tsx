@@ -12,6 +12,7 @@ import { CierrePendienteCard } from '../../components/inicio/CierrePendienteCard
 import { ResumenInicioCard } from '../../components/inicio/ResumenInicioCard';
 import { SectorSaldoRow } from '../../components/inicio/SectorSaldoRow';
 import { SectorTile } from '../../components/inicio/SectorTile';
+import { BotonTema } from '../../components/tema/BotonTema';
 import { EsqueletoInicio } from '../../components/esqueletos/Esqueletos';
 import { useEsqueleto } from '../../hooks/useEsqueleto';
 import { crearLectorInicio } from '../../store/lectorInicio';
@@ -20,13 +21,16 @@ import { useCuentasStore } from '../../store/useCuentasStore';
 import { useSaldosSectoresStore } from '../../store/useSaldosSectoresStore';
 import { useSectoresStore } from '../../store/useSectoresStore';
 import { syncStore, useSyncStore } from '../../store/useSyncStore';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { resumenSaldos } from '../../utils/saldos';
 
 /** Cuánto se espera, como máximo, a que termine la sincronización al tirar de la pantalla. */
 const ESPERA_MAXIMA_MS = 20_000;
 
 export default function InicioScreen() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const router = useRouter();
 
@@ -95,7 +99,12 @@ export default function InicioScreen() {
     <Screen
       title="Inicio"
       subtitle="Cómo va el dinero de los dos"
-      derecha={<CampanaNotificaciones />}
+      derecha={
+        <View style={styles.acciones}>
+          <BotonTema />
+          <CampanaNotificaciones />
+        </View>
+      }
       onRefresh={refrescar}
     >
       {error ? (
@@ -166,7 +175,11 @@ export default function InicioScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
+  acciones: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
   listCard: {
     paddingVertical: 4,
     paddingHorizontal: spacing.lg,

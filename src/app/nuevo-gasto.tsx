@@ -15,7 +15,9 @@ import { getSectores } from '../db/queries/sectores';
 import type { Movimiento, Sector } from '../db/schema';
 import { useEliminarMovimiento } from '../hooks/useEliminarMovimiento';
 import { useCuentasStore } from '../store/useCuentasStore';
-import { colors, fontSizes, fonts, spacing } from '../theme';
+import { fontSizes, fonts, spacing } from '../theme';
+import { useEstilos } from '../theme/useTema';
+import type { Tema } from '../theme/temas';
 import type { FormaDinero, Moneda } from '../types';
 import { mensajeError } from '../utils/errors';
 import { formatFechaHora } from '../utils/fechas';
@@ -40,6 +42,7 @@ interface Disponibles {
  *   La fecha, la hora y el sector se mantienen.
  */
 export default function NuevoGastoScreen() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const router = useRouter();
   const params = useLocalSearchParams<{ sectorId?: string; movimientoId?: string }>();
@@ -292,7 +295,7 @@ export default function NuevoGastoScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   texto: {
     fontFamily: fonts.regular,
     fontSize: fontSizes.sm,

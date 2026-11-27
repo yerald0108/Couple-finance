@@ -10,7 +10,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
-import { colors, spacing } from '../../theme';
+import { spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { desplazamientoParaVer, solapeConTeclado } from '../../utils/teclado';
 import { AlEnfocarContext } from './AlEnfocarContext';
 import { EncabezadoPantalla } from './EncabezadoPantalla';
@@ -35,6 +37,8 @@ interface ScreenProps {
 
 /** Contenedor base de cada pantalla: respeta la barra superior, título y scroll. */
 export function Screen({ title, subtitle, onBack, derecha, onRefresh, children }: ScreenProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const alturaTeclado = useKeyboardHeight();
   const [refrescando, setRefrescando] = useState(false);
 
@@ -127,8 +131,8 @@ export function Screen({ title, subtitle, onBack, derecha, onRefresh, children }
               <RefreshControl
                 refreshing={refrescando}
                 onRefresh={refrescar}
-                tintColor={colors.primary}
-                colors={[colors.primary]}
+                tintColor={colors.primaryText}
+                colors={[colors.primaryText]}
                 progressBackgroundColor={colors.surface}
               />
             ) : undefined
@@ -142,7 +146,7 @@ export function Screen({ title, subtitle, onBack, derecha, onRefresh, children }
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,

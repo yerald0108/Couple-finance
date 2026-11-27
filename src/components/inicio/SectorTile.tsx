@@ -1,7 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Sector } from '../../db/schema';
-import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { colorDeSector, iconoDeSector } from '../../theme/iconos';
 
 interface SectorTileProps {
@@ -11,6 +13,7 @@ interface SectorTileProps {
 
 /** Botón grande de un sector para entrar a su lista (Ingresos, Gastos fijos, Gustos, Ahorro, extras). */
 export function SectorTile({ sector, onPress }: SectorTileProps) {
+  const styles = useEstilos(crearEstilos);
   const color = colorDeSector(sector);
 
   return (
@@ -30,7 +33,7 @@ export function SectorTile({ sector, onPress }: SectorTileProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors, shadows }: Tema) => StyleSheet.create({
   tile: {
     flexGrow: 1,
     flexBasis: '47%',

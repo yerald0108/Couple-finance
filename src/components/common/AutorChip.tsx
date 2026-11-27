@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { inicialDe, type Autor } from '../../utils/notificaciones';
 
 interface AutorChipProps {
@@ -11,6 +13,7 @@ interface AutorChipProps {
  * No dibuja nada si no se sabe quién lo registró (movimientos de antes de conectar a la pareja).
  */
 export function AutorChip({ autor }: AutorChipProps) {
+  const styles = useEstilos(crearEstilos);
   if (!autor.nombre) return null;
   return (
     <View
@@ -28,7 +31,7 @@ export function AutorChip({ autor }: AutorChipProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -58,7 +61,7 @@ const styles = StyleSheet.create({
   inicial: {
     fontFamily: fonts.bold,
     fontSize: 10,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   nombre: {
     fontFamily: fonts.semibold,
@@ -66,6 +69,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   nombreYo: {
-    color: colors.primary,
+    color: colors.primaryText,
   },
 });

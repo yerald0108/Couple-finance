@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { useAlEnfocar } from '../common/AlEnfocarContext';
 
 interface TextFieldProps
@@ -28,6 +30,8 @@ interface TextFieldProps
 
 /** Campo de texto con etiqueta, ayuda, error y contador de letras. */
 export function TextField({ label, error, helper, multiline, maxLength, value, ...rest }: TextFieldProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const [enfocado, setEnfocado] = useState(false);
   const alEnfocar = useAlEnfocar();
 
@@ -65,7 +69,7 @@ export function TextField({ label, error, helper, multiline, maxLength, value, .
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   wrap: {
     gap: spacing.xs,
   },
@@ -91,7 +95,7 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
   },
   focused: {
-    borderColor: colors.primary,
+    borderColor: colors.primaryText,
   },
   errorBorder: {
     borderColor: colors.negative,

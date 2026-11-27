@@ -1,8 +1,10 @@
 import { Fragment } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
 import { colorDeSector, iconoDeSector } from '../../theme/iconos';
+import type { Tema } from '../../theme/temas';
+import { useEstilos, useTema } from '../../theme/useTema';
 import type { EstadoSector, SectorCierre } from '../../utils/cierreMes';
 import { Card } from '../common/Card';
 import { Divider } from '../common/Divider';
@@ -18,14 +20,16 @@ interface SectoresCierreCardProps {
 /** Si ya se usó casi todo lo repartido, la barra avisa en amarillo. */
 const UMBRAL_AVISO = 85;
 
-const PASTILLA: Record<EstadoSector, { texto: string; color: string }> = {
-  se_paso: { texto: 'Se pasó', color: colors.negative },
-  sin_reparto: { texto: 'Sin reparto', color: colors.warning },
-  dentro: { texto: 'Dentro', color: colors.positive },
+const PASTILLA: Record<EstadoSector, { texto: string; color: 'negative' | 'warning' | 'positive' }> = {
+  se_paso: { texto: 'Se pasó', color: 'negative' },
+  sin_reparto: { texto: 'Sin reparto', color: 'warning' },
+  dentro: { texto: 'Dentro', color: 'positive' },
 };
 
 /** Cómo le fue a cada sector: lo repartido contra lo gastado, quién se pasó y lo que quedó al terminar el mes. */
 export function SectoresCierreCard({ sectores, resumen, cuantosSePasaron }: SectoresCierreCardProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const alerta = cuantosSePasaron > 0;
 
   return (
@@ -57,8 +61,11 @@ export function SectoresCierreCard({ sectores, resumen, cuantosSePasaron }: Sect
 }
 
 function Fila({ sector }: { sector: SectorCierre }) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const color = colorDeSector(sector);
   const pastilla = PASTILLA[sector.estado];
+  const colorPastilla = colors[pastilla.color];
   const pct = sector.porcentajeUsado;
   const excedido = pct !== null && pct > 100;
   const colorBarra = excedido ? colors.negative : pct !== null && pct >= UMBRAL_AVISO ? colors.warning : color;
@@ -73,8 +80,8 @@ function Fila({ sector }: { sector: SectorCierre }) {
         <Text style={styles.nombre} numberOfLines={1}>
           {sector.nombre}
         </Text>
-        <View style={[styles.pastilla, { backgroundColor: `${pastilla.color}1A` }]}>
-          <Text style={[styles.pastillaTexto, { color: pastilla.color }]}>{pastilla.texto}</Text>
+        <View style={[styles.pastilla, { backgroundColor: `${colorPastilla}1A` }]}>
+          <Text style={[styles.pastillaTexto, { color: colorPastilla }]}>{pastilla.texto}</Text>
         </View>
       </View>
 
@@ -93,7 +100,7 @@ function Fila({ sector }: { sector: SectorCierre }) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.md,
   },

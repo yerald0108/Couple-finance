@@ -1,6 +1,8 @@
 import { Fragment } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { Card } from '../common/Card';
 import { Divider } from '../common/Divider';
 
@@ -21,6 +23,7 @@ interface RankingCardProps {
 
 /** Lista numerada (1, 2, 3…) con un título, un detalle y un monto por fila. */
 export function RankingCard({ titulo, filas, nota }: RankingCardProps) {
+  const styles = useEstilos(crearEstilos);
   return (
     <Card style={styles.card}>
       <Text style={styles.titulo}>{titulo}</Text>
@@ -50,7 +53,7 @@ export function RankingCard({ titulo, filas, nota }: RankingCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.md,
   },
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
   posicionTexto: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.xs,
-    color: colors.primary,
+    color: colors.primaryText,
   },
   textos: {
     flex: 1,

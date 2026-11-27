@@ -6,10 +6,14 @@ import { FormularioPareja } from '../components/sincronizacion/FormularioPareja'
 import { SinConfigurar } from '../components/sincronizacion/SinConfigurar';
 import { VistaPareja } from '../components/sincronizacion/VistaPareja';
 import { useSesionStore } from '../store/useSesionStore';
-import { colors, fontSizes, fonts } from '../theme';
+import { fontSizes, fonts } from '../theme';
+import { useEstilos, useTema } from '../theme/useTema';
+import type { Tema } from '../theme/temas';
 
 /** Ventana de sincronización: según el estado muestra instrucciones, cuenta, pareja o el resumen de la pareja. */
 export default function SincronizacionScreen() {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const router = useRouter();
   const configurado = useSesionStore((s) => s.configurado);
   const cargando = useSesionStore((s) => s.cargando);
@@ -26,7 +30,7 @@ export default function SincronizacionScreen() {
       {!configurado ? (
         <SinConfigurar />
       ) : cargando ? (
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={colors.primaryText} />
       ) : !usuario ? (
         <FormularioCuenta />
       ) : !pareja ? (
@@ -38,7 +42,7 @@ export default function SincronizacionScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   aviso: {
     fontFamily: fonts.regular,
     fontSize: fontSizes.sm,

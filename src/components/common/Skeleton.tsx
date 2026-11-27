@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { AccessibilityInfo, Animated, Easing, StyleSheet, View, type DimensionValue, type StyleProp, type ViewStyle } from 'react-native';
-import { colors, radius, spacing } from '../../theme';
+import { radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 
 /** Valor animado compartido por todos los bloques de un grupo: laten a la vez y con una sola animación. */
 const PulsoContext = createContext<Animated.Value | null>(null);
@@ -36,6 +38,7 @@ interface SkeletonGroupProps {
  * y deja el mismo espacio entre bloques que tiene `Screen` entre sus elementos.
  */
 export function SkeletonGroup({ children, etiqueta = 'Cargando', style }: SkeletonGroupProps) {
+  const styles = useEstilos(crearEstilos);
   const reducir = useReducirMovimiento();
   const pulso = useRef(new Animated.Value(0)).current;
 
@@ -80,6 +83,7 @@ interface SkeletonProps {
 
 /** Un bloque gris que late. Pon uno donde irá un texto, un icono o un monto. */
 export function Skeleton({ width = '100%', height = 16, radio = radius.sm, sobreColor = false, style }: SkeletonProps) {
+  const styles = useEstilos(crearEstilos);
   const pulso = useContext(PulsoContext);
   const opacity = pulso ? pulso.interpolate({ inputRange: [0, 1], outputRange: [1, 0.45] }) : 1;
   return (
@@ -93,7 +97,7 @@ export function Skeleton({ width = '100%', height = 16, radio = radius.sm, sobre
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   grupo: {
     gap: spacing.lg,
   },

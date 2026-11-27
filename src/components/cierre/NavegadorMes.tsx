@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 
 interface NavegadorMesProps {
   /** "Octubre 2026" */
@@ -14,6 +16,8 @@ interface NavegadorMesProps {
 
 /** Flechas para ir al cierre del mes anterior o al siguiente, con el nombre del mes en el centro. */
 export function NavegadorMes({ etiqueta, onAnterior, onSiguiente, puedeAnterior, puedeSiguiente }: NavegadorMesProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   return (
     <View style={styles.fila}>
       <Pressable
@@ -47,7 +51,7 @@ export function NavegadorMes({ etiqueta, onAnterior, onSiguiente, puedeAnterior,
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   fila: {
     flexDirection: 'row',
     alignItems: 'center',

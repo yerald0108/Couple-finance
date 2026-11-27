@@ -2,7 +2,9 @@ import { Fragment, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import type { DatosIngreso } from '../../db/queries/ingresos';
 import { useSectoresStore } from '../../store/useSectoresStore';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { FormaDinero, Moneda, OrigenIngreso } from '../../types';
 import { ORIGENES } from '../../utils/constants';
 import { mensajeError } from '../../utils/errors';
@@ -47,6 +49,7 @@ export function FormularioIngreso({
   onGuardar,
   limpiarAlGuardar = false,
 }: FormularioIngresoProps) {
+  const styles = useEstilos(crearEstilos);
   const sectores = useSectoresStore((s) => s.sectores);
 
   const [montoTexto, setMontoTexto] = useState(() => (inicial ? String(inicial.monto) : ''));
@@ -169,7 +172,7 @@ export function FormularioIngreso({
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   listCard: {
     paddingHorizontal: spacing.lg,
     paddingVertical: 4,

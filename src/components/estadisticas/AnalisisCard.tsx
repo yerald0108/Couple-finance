@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { AnalisisPeriodo } from '../../utils/analisis';
 import type { Periodo } from '../../utils/fechas';
 import { formatMonto } from '../../utils/formatters';
@@ -20,6 +22,8 @@ interface Dato {
 
 /** Análisis del período: estimación de cierre de mes, mensajes automáticos y datos clave (promedios, extremos). */
 export function AnalisisCard({ analisis, periodo }: AnalisisCardProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const { estimacion, insights, detalle, evolucion } = analisis;
   const porMes = evolucion?.tipo === 'mes';
   const unidad = porMes ? 'mes' : 'día';
@@ -82,7 +86,7 @@ export function AnalisisCard({ analisis, periodo }: AnalisisCardProps) {
       {estimacion ? (
         <View style={styles.estimacion}>
           <View style={styles.estimacionCabecera}>
-            <Ionicons name="analytics" size={18} color={colors.primary} />
+            <Ionicons name="analytics" size={18} color={colors.primaryText} />
             <Text style={styles.estimacionEtiqueta}>Estimación de cierre de mes</Text>
           </View>
           <Text style={styles.estimacionMonto}>{formatMonto(estimacion.cierreCup)}</Text>
@@ -104,7 +108,7 @@ export function AnalisisCard({ analisis, periodo }: AnalisisCardProps) {
               <Ionicons
                 name={insight.tono === 'alerta' ? 'warning' : 'information-circle'}
                 size={20}
-                color={insight.tono === 'alerta' ? colors.warning : colors.primary}
+                color={insight.tono === 'alerta' ? colors.warning : colors.primaryText}
               />
               <Text style={styles.insightTexto}>{insight.texto}</Text>
             </View>
@@ -129,7 +133,7 @@ export function AnalisisCard({ analisis, periodo }: AnalisisCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.lg,
   },

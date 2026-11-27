@@ -2,33 +2,11 @@
  * Tema visual de la app.
  * Inspirado en un estilo "fintech" limpio: fondo gris muy claro, tarjetas blancas
  * con esquinas redondeadas, color principal índigo/violeta y colores vivos por categoría.
+ *
+ * Aquí quedan los valores que no cambian con el modo claro/oscuro. Los colores y las sombras, que sí cambian,
+ * están en `temas.ts` y se piden con `useTema()` / `useEstilos()` (`useTema.ts`).
  */
 import type { FormaDinero, TipoSector } from '../types';
-
-export const colors = {
-  // Marca
-  primary: '#5B4DF5',
-  primaryDark: '#4338CA',
-  primarySoft: '#ECEBFE',
-  // Degradado de la tarjeta de saldo (se usará en la Fase 4)
-  gradientStart: '#8B7CF6',
-  gradientEnd: '#5B8DEF',
-
-  // Superficies
-  background: '#F4F5FB',
-  surface: '#FFFFFF',
-  border: '#E8EAF3',
-
-  // Texto
-  text: '#1B1D2E',
-  textSecondary: '#6B7088',
-  textMuted: '#9A9FB5',
-
-  // Estados
-  positive: '#16A34A',
-  negative: '#DC2626',
-  warning: '#F59E0B',
-} as const;
 
 /** Color de cada forma de dinero (cuentas). */
 export const formaColors: Record<FormaDinero, string> = {
@@ -77,22 +55,4 @@ export const fontSizes = {
   lg: 18,
   xl: 22,
   xxl: 28,
-} as const;
-
-/** Sombras suaves para tarjetas (iOS usa shadow*, Android usa elevation). */
-export const shadows = {
-  card: {
-    shadowColor: '#1B1D2E',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
-  },
-  tabBar: {
-    shadowColor: '#1B1D2E',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 12,
-  },
 } as const;

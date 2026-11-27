@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { ResumenPeriodo } from '../../utils/analisis';
 import type { TitularCierre } from '../../utils/cierreMes';
 import { formatMonto } from '../../utils/formatters';
@@ -20,6 +22,8 @@ const ICONO_TITULAR = {
 
 /** Tarjeta principal del cierre: la frase del mes y tres líneas grandes: lo que entró, lo que salió y lo que quedó. */
 export function CierreResumenCard({ etiqueta, resumen, titular }: CierreResumenCardProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const { ingresos, gastos, balance } = resumen;
   const hayUsd = ingresos.usd > 0 || gastos.usd > 0;
 
@@ -28,7 +32,7 @@ export function CierreResumenCard({ etiqueta, resumen, titular }: CierreResumenC
       <Text style={styles.label}>Así cerró {etiqueta}</Text>
 
       <View style={styles.titular}>
-        <Ionicons name={ICONO_TITULAR[titular.tono]} size={22} color={colors.surface} />
+        <Ionicons name={ICONO_TITULAR[titular.tono]} size={22} color={colors.onPrimary} />
         <Text style={styles.titularTexto}>{titular.texto}</Text>
       </View>
 
@@ -74,6 +78,7 @@ interface LineaProps {
 }
 
 function Linea({ icono, nombre, valor, grande = false, pequena = false, negativo = false }: LineaProps) {
+  const styles = useEstilos(crearEstilos);
   return (
     <View style={styles.linea} accessible accessibilityLabel={`${nombre} ${valor}`}>
       <View style={styles.lineaNombre}>
@@ -91,7 +96,7 @@ function Linea({ icono, nombre, valor, grande = false, pequena = false, negativo
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors, shadows }: Tema) => StyleSheet.create({
   card: {
     backgroundColor: colors.primary,
     borderRadius: radius.xl,
@@ -114,7 +119,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semibold,
     fontSize: fontSizes.lg,
     lineHeight: 26,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   lineas: {
     backgroundColor: 'rgba(255,255,255,0.18)',
@@ -146,7 +151,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     fontFamily: fonts.bold,
     fontSize: fontSizes.xl,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   valorGrande: {
     fontSize: 30,

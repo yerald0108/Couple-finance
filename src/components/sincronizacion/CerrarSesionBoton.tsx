@@ -3,11 +3,14 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useSesionStore } from '../../store/useSesionStore';
 import { syncStore } from '../../store/useSyncStore';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { confirmar } from '../../utils/dialogos';
 
 /** Enlace "Cerrar sesión" con confirmación. Los movimientos y saldos de este teléfono NO se borran. */
 export function CerrarSesionBoton() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const salir = useSesionStore((s) => s.salir);
   const [saliendo, setSaliendo] = useState(false);
@@ -52,7 +55,7 @@ export function CerrarSesionBoton() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   boton: {
     alignSelf: 'center',
     paddingVertical: spacing.md,

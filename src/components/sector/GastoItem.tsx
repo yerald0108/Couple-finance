@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import type { Movimiento } from '../../db/schema';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { monedaDeForma } from '../../utils/etiquetas';
 import { formatFechaHora } from '../../utils/fechas';
 import { formatMonto } from '../../utils/formatters';
@@ -19,6 +21,7 @@ interface GastoItemProps {
 
 /** Un gasto: concepto, fecha y hora, forma de dinero y monto (en rojo). */
 export function GastoItem({ gasto, autor, onPress }: GastoItemProps) {
+  const styles = useEstilos(crearEstilos);
   const moneda = monedaDeForma(gasto.forma);
   return (
     <FilaPulsable
@@ -42,7 +45,7 @@ export function GastoItem({ gasto, autor, onPress }: GastoItemProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   fila: {
     flexDirection: 'row',
     alignItems: 'flex-start',

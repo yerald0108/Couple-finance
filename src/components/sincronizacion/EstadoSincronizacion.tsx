@@ -3,12 +3,16 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useSyncStore } from '../../store/useSyncStore';
 import { textoHace } from '../../sync/sesionSync';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { Button } from '../common/Button';
 import { Card } from '../common/Card';
 
 /** Cómo va la sincronización: estado, cambios sin enviar, última vez y botón "Sincronizar ahora". */
 export function EstadoSincronizacion() {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const db = useSQLiteContext();
   const estado = useSyncStore((s) => s.estado);
   const pendientes = useSyncStore((s) => s.pendientes);
@@ -25,7 +29,7 @@ export function EstadoSincronizacion() {
   if (sincronizando) {
     titulo = 'Sincronizando…';
     icono = 'sync';
-    color = colors.primary;
+    color = colors.primaryText;
   } else if (estado === 'sin_conexion') {
     titulo = 'Sin conexión';
     icono = 'cloud-offline';
@@ -78,7 +82,7 @@ export function EstadoSincronizacion() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.md,
   },

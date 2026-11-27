@@ -3,11 +3,15 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useSesionStore } from '../../store/useSesionStore';
 import { useSyncStore } from '../../store/useSyncStore';
-import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { formatearCodigo } from '../../utils/cuentaValidation';
 
 /** Tarjeta de Billetera: estado de la cuenta y la pareja. Al tocarla se abre la ventana de sincronización. */
 export function SincronizacionCard() {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const router = useRouter();
   const configurado = useSesionStore((s) => s.configurado);
   const cargando = useSesionStore((s) => s.cargando);
@@ -21,7 +25,7 @@ export function SincronizacionCard() {
   let accion = 'Activar';
   let icono: 'sync-circle' | 'checkmark-circle' | 'person-circle' | 'construct' | 'git-merge' | 'cloud-offline' | 'alert-circle' =
     'sync-circle';
-  let colorIcono: string = colors.primary;
+  let colorIcono: string = colors.primaryText;
 
   if (!configurado) {
     detalle = 'Todavía no está conectado a Supabase. La app funciona solo en este teléfono.';
@@ -87,7 +91,7 @@ export function SincronizacionCard() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors, shadows }: Tema) => StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -125,6 +129,6 @@ const styles = StyleSheet.create({
   accion: {
     fontFamily: fonts.semibold,
     fontSize: fontSizes.sm,
-    color: colors.primary,
+    color: colors.primaryText,
   },
 });

@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import {
   FILTROS_TIPO,
   compararMes,
@@ -24,6 +26,8 @@ interface FiltrosHistorialProps {
 
 /** Filtros del historial: Todos / Ingresos / Gastos y "todos los meses" o un mes concreto con flechas. */
 export function FiltrosHistorial({ tipo, onTipoChange, mes, onMesChange, primerMes }: FiltrosHistorialProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const actual = mesDe(new Date());
 
   return (
@@ -56,7 +60,7 @@ export function FiltrosHistorial({ tipo, onTipoChange, mes, onMesChange, primerM
             accessibilityLabel="Elegir un mes"
             style={({ pressed }) => [styles.accion, pressed && styles.pressed]}
           >
-            <Ionicons name="calendar-outline" size={18} color={colors.primary} />
+            <Ionicons name="calendar-outline" size={18} color={colors.primaryText} />
             <Text style={styles.accionTexto}>Elegir mes</Text>
           </Pressable>
         </View>
@@ -84,7 +88,7 @@ export function FiltrosHistorial({ tipo, onTipoChange, mes, onMesChange, primerM
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   wrap: {
     gap: spacing.md,
   },
@@ -112,7 +116,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   tabTextoActivo: {
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   filaMes: {
     flexDirection: 'row',
@@ -139,7 +143,7 @@ const styles = StyleSheet.create({
   accionTexto: {
     fontFamily: fonts.semibold,
     fontSize: fontSizes.sm,
-    color: colors.primary,
+    color: colors.primaryText,
   },
   verTodos: {
     alignSelf: 'center',

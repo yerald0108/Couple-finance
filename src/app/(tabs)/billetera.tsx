@@ -15,10 +15,13 @@ import { SectionTitle } from '../../components/common/SectionTitle';
 import { useCuentasStore } from '../../store/useCuentasStore';
 import { useSectoresStore } from '../../store/useSectoresStore';
 import { useSyncStore } from '../../store/useSyncStore';
-import { colors, fontSizes, fonts } from '../../theme';
+import { fontSizes, fonts } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { resumenSaldos } from '../../utils/saldos';
 
 export default function BilleteraScreen() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const router = useRouter();
 
@@ -92,7 +95,7 @@ export default function BilleteraScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   listCard: {
     paddingVertical: 4,
   },

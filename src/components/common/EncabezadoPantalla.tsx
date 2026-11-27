@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 
 interface EncabezadoPantallaProps {
   title: string;
@@ -14,6 +16,8 @@ interface EncabezadoPantallaProps {
 
 /** Título de una pantalla (con "atrás" y acción a la derecha opcionales). Lo usan `Screen` y `PantallaLista`. */
 export function EncabezadoPantalla({ title, subtitle, onBack, derecha }: EncabezadoPantallaProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   return (
     <View style={styles.header}>
       {onBack ? (
@@ -42,7 +46,7 @@ export function EncabezadoPantalla({ title, subtitle, onBack, derecha }: Encabez
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',

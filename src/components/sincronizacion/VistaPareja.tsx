@@ -4,7 +4,9 @@ import { useSQLiteContext } from 'expo-sqlite';
 import type { ParejaInfo } from '../../lib/cuentaService';
 import { useSesionStore } from '../../store/useSesionStore';
 import { useSyncStore } from '../../store/useSyncStore';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import {
   NOMBRE_PAREJA_MAX,
   formatearCodigo,
@@ -25,6 +27,7 @@ interface VistaParejaProps {
 
 /** Pareja ya creada: código (mientras falte la otra persona), miembros, cambiar mi nombre y cerrar sesión. */
 export function VistaPareja({ pareja }: VistaParejaProps) {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const refrescar = useSesionStore((s) => s.refrescar);
   const cambiarNombre = useSesionStore((s) => s.cambiarNombre);
@@ -156,7 +159,7 @@ export function VistaPareja({ pareja }: VistaParejaProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   wrap: {
     gap: spacing.lg,
   },
@@ -178,7 +181,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontSize: 36,
     letterSpacing: 4,
-    color: colors.primary,
+    color: colors.primaryText,
     textAlign: 'center',
     paddingVertical: spacing.sm,
   },
@@ -205,7 +208,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   inicialYo: {
-    color: colors.primary,
+    color: colors.primaryText,
   },
   nombre: {
     flex: 1,
@@ -216,7 +219,7 @@ const styles = StyleSheet.create({
   tu: {
     fontFamily: fonts.regular,
     fontSize: fontSizes.xs,
-    color: colors.primary,
+    color: colors.primaryText,
   },
   editar: {
     gap: spacing.md,

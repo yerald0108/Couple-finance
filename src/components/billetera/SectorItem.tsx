@@ -1,7 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import type { Sector } from '../../db/schema';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { colorDeSector, iconoDeSector } from '../../theme/iconos';
 
 interface SectorItemProps {
@@ -10,6 +12,7 @@ interface SectorItemProps {
 
 /** Fila de un sector: icono de color, nombre y para qué se usa ese dinero. */
 export function SectorItem({ sector }: SectorItemProps) {
+  const styles = useEstilos(crearEstilos);
   const color = colorDeSector(sector);
 
   return (
@@ -34,7 +37,7 @@ export function SectorItem({ sector }: SectorItemProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -70,6 +73,6 @@ const styles = StyleSheet.create({
   badgeText: {
     fontFamily: fonts.semibold,
     fontSize: fontSizes.xs,
-    color: colors.primary,
+    color: colors.primaryText,
   },
 });

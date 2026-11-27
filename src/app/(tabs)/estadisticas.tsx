@@ -19,7 +19,9 @@ import { UsoSectoresCard } from '../../components/estadisticas/UsoSectoresCard';
 import { cargarEstadisticas, type DatosEstadisticas } from '../../db/queries/estadisticas';
 import { useEsqueleto } from '../../hooks/useEsqueleto';
 import { useSyncStore } from '../../store/useSyncStore';
-import { colors, fontSizes, fonts, formaColors } from '../../theme';
+import { fontSizes, fonts, formaColors } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { colorDeSector, formaIconos, iconoDeSector } from '../../theme/iconos';
 import { FORMA_LABEL } from '../../utils/constants';
 import { claveDeDesplazamiento, claveMes } from '../../utils/cierreMes';
@@ -30,6 +32,7 @@ import { formatMonto } from '../../utils/formatters';
 const NOTA_USD = 'La dona muestra solo los gastos en pesos; el USD va aparte.';
 
 export default function EstadisticasScreen() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const router = useRouter();
 
@@ -260,7 +263,7 @@ export default function EstadisticasScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   error: {
     fontFamily: fonts.regular,
     fontSize: fontSizes.sm,

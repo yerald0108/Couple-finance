@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { ResumenPeriodo } from '../../utils/analisis';
 import { formatMonto } from '../../utils/formatters';
 
@@ -12,6 +14,7 @@ interface ResumenPeriodoCardProps {
 
 /** Tarjeta principal: balance del período (ingresos − gastos) en pesos, USD aparte y cuánto de lo ingresado se gastó. */
 export function ResumenPeriodoCard({ resumen, cantidad }: ResumenPeriodoCardProps) {
+  const styles = useEstilos(crearEstilos);
   const { ingresos, gastos, balance, porcentajeGastado } = resumen;
   const hayUsd = ingresos.usd > 0 || gastos.usd > 0;
   const llenado = porcentajeGastado === null ? 0 : Math.min(100, Math.max(0, porcentajeGastado));
@@ -78,7 +81,7 @@ export function ResumenPeriodoCard({ resumen, cantidad }: ResumenPeriodoCardProp
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors, shadows }: Tema) => StyleSheet.create({
   card: {
     backgroundColor: colors.primary,
     borderRadius: radius.xl,
@@ -94,7 +97,7 @@ const styles = StyleSheet.create({
   total: {
     fontFamily: fonts.bold,
     fontSize: 36,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   negativo: {
     color: '#FFD0D0',
@@ -135,7 +138,7 @@ const styles = StyleSheet.create({
   columnaMonto: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.md,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   progreso: {
     marginTop: spacing.md,
@@ -150,7 +153,7 @@ const styles = StyleSheet.create({
   relleno: {
     height: 8,
     borderRadius: radius.pill,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.onPrimary,
   },
   rellenoExceso: {
     backgroundColor: '#FFB4B4',
@@ -186,6 +189,6 @@ const styles = StyleSheet.create({
   usdBalance: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.md,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
 });

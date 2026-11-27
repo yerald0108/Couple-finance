@@ -4,7 +4,9 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { sesionStore } from '../../store/useSesionStore';
 import { useSyncStore } from '../../store/useSyncStore';
 import { sesionSyncDe } from '../../sync/sesionSync';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { confirmar } from '../../utils/dialogos';
 import { mensajeError } from '../../utils/errors';
 import { Button } from '../common/Button';
@@ -16,6 +18,7 @@ function plural(n: number, uno: string, varios: string) {
 
 /** Pregunta que aparece solo cuando este teléfono y la pareja YA tienen movimientos: unirlos o empezar con los de la pareja. */
 export function DecisionUnir() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const decision = useSyncStore((s) => s.decision);
   const decidir = useSyncStore((s) => s.decidir);
@@ -81,7 +84,7 @@ export function DecisionUnir() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.md,
   },

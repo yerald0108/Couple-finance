@@ -1,6 +1,8 @@
 import { Fragment } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { colors, radius, shadows, spacing } from '../../theme';
+import { radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { Card } from '../common/Card';
 import { Divider } from '../common/Divider';
 import { Skeleton, SkeletonGroup } from '../common/Skeleton';
@@ -11,6 +13,7 @@ import { Skeleton, SkeletonGroup } from '../common/Skeleton';
  * Si cambias el diseño de `app/cierre-mes.tsx`, cambia también este esqueleto.
  */
 export function EsqueletoCierre() {
+  const styles = useEstilos(crearEstilos);
   return (
     <SkeletonGroup>
       <View style={styles.violeta}>
@@ -75,7 +78,7 @@ export function EsqueletoCierre() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors, shadows }: Tema) => StyleSheet.create({
   violeta: {
     backgroundColor: colors.primary,
     borderRadius: radius.xl,

@@ -6,11 +6,15 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useNotificacionesStore } from '../../store/useNotificacionesStore';
 import { useSesionStore } from '../../store/useSesionStore';
 import { useSyncStore } from '../../store/useSyncStore';
-import { colors, fontSizes, fonts, radius } from '../../theme';
+import { fontSizes, fonts, radius } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { textoInsignia } from '../../utils/notificaciones';
 
 /** Botón de la esquina de Inicio: campana con el número de movimientos nuevos de tu pareja. Abre las notificaciones. */
 export function CampanaNotificaciones() {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const db = useSQLiteContext();
   const router = useRouter();
   const yoId = useSesionStore((s) => s.usuario?.id ?? null);
@@ -48,7 +52,7 @@ export function CampanaNotificaciones() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   boton: {
     width: 44,
     height: 44,
@@ -72,6 +76,6 @@ const styles = StyleSheet.create({
   insigniaTexto: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.xs - 2,
-    color: '#FFFFFF',
+    color: colors.onNegative,
   },
 });

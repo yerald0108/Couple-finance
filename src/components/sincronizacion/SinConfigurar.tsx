@@ -1,9 +1,12 @@
 import { StyleSheet, Text } from 'react-native';
 import { Card } from '../common/Card';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 
 /** Se muestra si la app todavía no tiene la dirección y la llave de Supabase. */
 export function SinConfigurar() {
+  const styles = useEstilos(crearEstilos);
   return (
     <Card style={styles.card}>
       <Text style={styles.titulo}>Falta conectar Supabase</Text>
@@ -21,7 +24,7 @@ export function SinConfigurar() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.sm,
   },

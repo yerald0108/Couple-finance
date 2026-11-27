@@ -1,7 +1,9 @@
 import { Fragment } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { colorDeSector, iconoDeSector } from '../../theme/iconos';
 import type { FilaUsoSector } from '../../utils/analisis';
 import { formatMonto } from '../../utils/formatters';
@@ -17,6 +19,7 @@ const UMBRAL_AVISO = 85;
 
 /** Para cada sector: cuánto se le repartió en el período, cuánto se gastó y cuánto queda libre. */
 export function UsoSectoresCard({ filas }: UsoSectoresCardProps) {
+  const styles = useEstilos(crearEstilos);
   return (
     <Card style={styles.card}>
       <Text style={styles.titulo}>Uso del dinero por sector</Text>
@@ -35,6 +38,8 @@ export function UsoSectoresCard({ filas }: UsoSectoresCardProps) {
 }
 
 function Fila({ fila }: { fila: FilaUsoSector }) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const color = colorDeSector(fila);
   const pct = fila.porcentajeUsado;
   const excedido = pct !== null && pct > 100;
@@ -82,7 +87,7 @@ function Fila({ fila }: { fila: FilaUsoSector }) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   card: {
     gap: spacing.md,
   },

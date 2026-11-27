@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 
 interface CierrePendienteCardProps {
   /** "Octubre 2026" */
@@ -12,6 +14,8 @@ interface CierrePendienteCardProps {
 
 /** Aviso de Inicio: el mes que acaba de terminar ya tiene su cierre. Se quita al abrirlo o al descartarlo. */
 export function CierrePendienteCard({ etiqueta, onAbrir, onDescartar }: CierrePendienteCardProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   return (
     <View style={styles.wrap}>
       <Pressable
@@ -21,7 +25,7 @@ export function CierrePendienteCard({ etiqueta, onAbrir, onDescartar }: CierrePe
         style={({ pressed }) => [styles.card, pressed && styles.pressed]}
       >
         <View style={styles.icono}>
-          <Ionicons name="calendar" size={22} color={colors.primary} />
+          <Ionicons name="calendar" size={22} color={colors.primaryText} />
         </View>
         <View style={styles.textos}>
           <Text style={styles.titulo}>Ya está el cierre de {etiqueta}</Text>
@@ -42,7 +46,7 @@ export function CierrePendienteCard({ etiqueta, onAbrir, onDescartar }: CierrePe
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors, shadows }: Tema) => StyleSheet.create({
   wrap: {
     position: 'relative',
   },
@@ -87,7 +91,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     fontFamily: fonts.semibold,
     fontSize: fontSizes.sm,
-    color: colors.primary,
+    color: colors.primaryText,
   },
   cerrar: {
     position: 'absolute',

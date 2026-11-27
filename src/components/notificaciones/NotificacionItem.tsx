@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import {
   detalleNotificacion,
   esIngreso,
@@ -27,6 +29,8 @@ interface NotificacionItemProps {
 
 /** Una notificación: quién lo registró, qué fue, cuándo y el monto. Al tocarla se abre el detalle. También es la fila del historial. */
 export function NotificacionItem({ notificacion, autor, nuevo, onPress, cuando, sinRelleno }: NotificacionItemProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const frase = fraseNotificacion(notificacion, autor);
   const detalle = detalleNotificacion(notificacion);
   const monto = montoConSigno(notificacion);
@@ -61,7 +65,7 @@ export function NotificacionItem({ notificacion, autor, nuevo, onPress, cuando, 
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   fila: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -92,7 +96,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   inicialYo: {
-    color: colors.primary,
+    color: colors.primaryText,
   },
   info: {
     flex: 1,

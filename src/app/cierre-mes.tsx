@@ -17,7 +17,9 @@ import { cargarCierreMes } from '../db/queries/cierreMes';
 import { useEsqueleto } from '../hooks/useEsqueleto';
 import { useCierreStore } from '../store/useCierreStore';
 import { useSyncStore } from '../store/useSyncStore';
-import { colors, fontSizes, fonts } from '../theme';
+import { fontSizes, fonts } from '../theme';
+import { useEstilos } from '../theme/useTema';
+import type { Tema } from '../theme/temas';
 import {
   claveDeDesplazamiento,
   claveMesAnterior,
@@ -36,6 +38,7 @@ import { formatMonto } from '../utils/formatters';
  * Las flechas llevan a los meses anteriores. El mes actual no aparece: se cierra cuando termina.
  */
 export default function CierreMesScreen() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const router = useRouter();
   const { mes } = useLocalSearchParams<{ mes?: string }>();
@@ -153,7 +156,7 @@ export default function CierreMesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   error: {
     fontFamily: fonts.regular,
     fontSize: fontSizes.sm,

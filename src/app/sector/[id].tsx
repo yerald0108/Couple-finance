@@ -19,13 +19,16 @@ import { cargarVistaSector, type VistaSector } from '../../db/queries/vistaSecto
 import { useEsqueleto } from '../../hooks/useEsqueleto';
 import { useSesionStore } from '../../store/useSesionStore';
 import { useSyncStore } from '../../store/useSyncStore';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { mensajeError } from '../../utils/errors';
 import { autorDe } from '../../utils/notificaciones';
 import { totalesPorForma } from '../../utils/totales';
 
 /** Pantalla de un sector: lista del mes (o historial, en Ahorro) y botón para añadir. */
 export default function SectorScreen() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -231,7 +234,7 @@ export default function SectorScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   listCard: {
     paddingVertical: 4,
     paddingHorizontal: spacing.lg,

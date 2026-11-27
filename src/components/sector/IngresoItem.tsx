@@ -1,6 +1,8 @@
 import { StyleSheet, Text, View } from 'react-native';
 import type { IngresoMes } from '../../db/queries/listados';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { monedaDeForma, origenLabel } from '../../utils/etiquetas';
 import { formatFechaHora } from '../../utils/fechas';
 import { formatMonto } from '../../utils/formatters';
@@ -19,6 +21,7 @@ interface IngresoItemProps {
 
 /** Un ingreso: origen, fecha y hora, forma de dinero, monto y cómo se repartió. */
 export function IngresoItem({ ingreso, autor, onPress }: IngresoItemProps) {
+  const styles = useEstilos(crearEstilos);
   const { movimiento, repartos } = ingreso;
   const moneda = monedaDeForma(movimiento.forma);
 
@@ -56,7 +59,7 @@ export function IngresoItem({ ingreso, autor, onPress }: IngresoItemProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   item: {
     paddingVertical: spacing.md,
     gap: spacing.sm,

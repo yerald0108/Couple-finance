@@ -15,12 +15,16 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Button } from '../components/common/Button';
 import { TextField } from '../components/forms/TextField';
 import { useSectoresStore } from '../store/useSectoresStore';
-import { colors, fontSizes, fonts, spacing } from '../theme';
+import { fontSizes, fonts, spacing } from '../theme';
+import { useEstilos, useTema } from '../theme/useTema';
+import type { Tema } from '../theme/temas';
 import { mensajeError } from '../utils/errors';
 import { NOMBRE_MAX, USO_MAX, validarSector } from '../utils/sectorValidation';
 
 /** Formulario (ventana emergente) para crear un sector: nombre + uso del dinero. */
 export default function NuevoSectorScreen() {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const db = useSQLiteContext();
   const router = useRouter();
   const sectores = useSectoresStore((s) => s.sectores);
@@ -112,7 +116,7 @@ export default function NuevoSectorScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,

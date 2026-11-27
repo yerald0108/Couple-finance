@@ -1,10 +1,14 @@
 import { Pressable, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import { colors, radius } from '../../theme';
+import { radius } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 
 /** Botón de la esquina de Movimientos: abre el historial con todos los movimientos de los dos. */
 export function BotonHistorial() {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   const router = useRouter();
 
   return (
@@ -21,7 +25,7 @@ export function BotonHistorial() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   boton: {
     width: 44,
     height: 44,

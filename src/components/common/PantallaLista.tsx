@@ -1,7 +1,9 @@
 import { useCallback, type ReactNode } from 'react';
 import { FlatList, StyleSheet, View, type ListRenderItemInfo } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, radius, spacing } from '../../theme';
+import { radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { Divider } from './Divider';
 import { EncabezadoPantalla } from './EncabezadoPantalla';
 
@@ -43,6 +45,7 @@ export function PantallaLista<T>({
   pie,
   alLlegarAlFinal,
 }: PantallaListaProps<T>) {
+  const styles = useEstilos(crearEstilos);
   const total = data.length;
 
   const dibujar = useCallback(
@@ -90,6 +93,7 @@ interface FilaDeTarjetaProps {
 
 /** Una fila de la lista con el aspecto de una fila dentro de una tarjeta: fondo blanco, esquinas solo arriba y abajo. */
 function FilaDeTarjeta({ primera, ultima, children }: FilaDeTarjetaProps) {
+  const styles = useEstilos(crearEstilos);
   return (
     <View style={[styles.fila, primera && styles.primera, ultima && styles.ultima]}>
       {primera ? null : <Divider />}
@@ -98,7 +102,7 @@ function FilaDeTarjeta({ primera, ultima, children }: FilaDeTarjetaProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,

@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { colors, fontSizes, fonts, radius, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos, useTema } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import type { Periodo } from '../../utils/fechas';
 
 interface SelectorPeriodoProps {
@@ -30,6 +32,8 @@ export function SelectorPeriodo({
   onSiguiente,
   puedeSiguiente,
 }: SelectorPeriodoProps) {
+  const styles = useEstilos(crearEstilos);
+  const { colors } = useTema();
   return (
     <View style={styles.wrap}>
       <View style={styles.tabs} accessibilityRole="tablist">
@@ -81,7 +85,7 @@ export function SelectorPeriodo({
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   wrap: {
     gap: spacing.md,
   },
@@ -109,7 +113,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   tabTextoActivo: {
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   navegador: {
     flexDirection: 'row',

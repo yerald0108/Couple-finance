@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useSesionStore } from '../../store/useSesionStore';
-import { colors, fontSizes, fonts, spacing } from '../../theme';
+import { fontSizes, fonts, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import {
   validarEmail,
   validarPasswordEntrada,
@@ -23,6 +25,7 @@ const OPCIONES: Opcion<Modo>[] = [
 
 /** Entrar o crear la cuenta de esta persona (correo + contraseña). */
 export function FormularioCuenta() {
+  const styles = useEstilos(crearEstilos);
   const db = useSQLiteContext();
   const registrarse = useSesionStore((s) => s.registrarse);
   const entrar = useSesionStore((s) => s.entrar);
@@ -130,7 +133,7 @@ export function FormularioCuenta() {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors }: Tema) => StyleSheet.create({
   form: {
     gap: spacing.lg,
   },

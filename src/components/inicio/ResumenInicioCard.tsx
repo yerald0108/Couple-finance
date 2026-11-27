@@ -1,5 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fontSizes, fonts, radius, shadows, spacing } from '../../theme';
+import { fontSizes, fonts, radius, spacing } from '../../theme';
+import { useEstilos } from '../../theme/useTema';
+import type { Tema } from '../../theme/temas';
 import { formatMonto } from '../../utils/formatters';
 
 interface ResumenInicioCardProps {
@@ -11,6 +13,7 @@ interface ResumenInicioCardProps {
 
 /** Tarjeta de Inicio: total en pesos y lo que hay en cada forma de dinero. */
 export function ResumenInicioCard({ totalCup, efectivo, transferencia, usd }: ResumenInicioCardProps) {
+  const styles = useEstilos(crearEstilos);
   return (
     <View style={styles.card}>
       <Text style={styles.label}>Total disponible</Text>
@@ -29,6 +32,7 @@ export function ResumenInicioCard({ totalCup, efectivo, transferencia, usd }: Re
 }
 
 function Forma({ titulo, valor }: { titulo: string; valor: string }) {
+  const styles = useEstilos(crearEstilos);
   return (
     <View style={styles.forma}>
       <Text style={styles.formaTitulo} numberOfLines={1}>
@@ -41,7 +45,7 @@ function Forma({ titulo, valor }: { titulo: string; valor: string }) {
   );
 }
 
-const styles = StyleSheet.create({
+const crearEstilos = ({ colors, shadows }: Tema) => StyleSheet.create({
   card: {
     backgroundColor: colors.primary,
     borderRadius: radius.xl,
@@ -57,7 +61,7 @@ const styles = StyleSheet.create({
   total: {
     fontFamily: fonts.bold,
     fontSize: 36,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
   caption: {
     fontFamily: fonts.regular,
@@ -85,6 +89,6 @@ const styles = StyleSheet.create({
   formaValor: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.sm,
-    color: colors.surface,
+    color: colors.onPrimary,
   },
 });
